@@ -61,14 +61,20 @@ client.on("messageCreate", async message => {
 	try {
 		const completion = await openai.createChatCompletion({
 		model: "gpt-3.5-turbo",
-		messages: [{role: "user", content: message.content}],
-		max_tokens: 20,
-		temperature: 0.5,
+		messages: [
+			{role: "system", content: "you are a sociable chat bot named Hubert in a discord server for LGBTQ people."},
+			{role: "user", content: message.content}],
+		max_tokens: 50,
+		temperature: 1.3,
 		user: message.author.id,
 		});
 
-		console.log(completion.data.choices[0].message.content);
-		message.reply({content: completion.data.choices[0].message.content});
+		console.log(`User asked: "${message.content}"`)
+		console.log(`OpenAI responded with ${completion.data.usage.total_tokens} tokens: "${completion.data.choices[0].message.content}"`);
+		client.channels.cache.get(channelId).sendTyping();
+		setTimeout(() => {
+			message.reply({content: completion.data.choices[0].message.content});
+		}, 4000);
 	} catch (error) {
 		errHandle(`OpenAI request error\n${error}`, 1, client);
 	}
