@@ -89,6 +89,7 @@ client.on("messageCreate", async message => {
 		setTimeout(() => {
 			try{
 				message.reply({content: completion.data.choices[0].message.content});
+				client.user.setPresence({status: 'online'});
 			} catch (error) {
 				errHandle(`Reply to prompt\n${error}`, 1, client);
 			}
@@ -98,9 +99,11 @@ client.on("messageCreate", async message => {
 		if (error.response) {
 			if (error.response.status == 429) {
 				try{
+					client.user.setPresence({status: 'idle'});
+					message.react(`❌`);
 					client.users.cache.get(message.author.id).send(`Sorry! I can only handle so many messages per minute. Try again in a minute.`);
 				} catch (error) {
-					errHandle(`Rate limit DM error\n${error}`, 1, client);
+					errHandle(`Rate limit message error\n${error}`, 1, client);
 				}
 			}
 		}
