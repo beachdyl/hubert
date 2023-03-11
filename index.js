@@ -46,24 +46,38 @@ try {
 
 // Process text messages
 client.on("messageCreate", async message => {
+	let replyToMe = `No`;
 	if (message.channel.id !== channelId) return; // Ignore messages sent ouside operational channel
 	if (message.author.bot) return; // Ignore bot messages (namely itself)
+	if (message.system) return; // Ignore system messages
 	if (func.isBanned(message.author.id)) {
 		client.users.cache.get(message.author.id).send(`You do not have permission to interact with me.`);
 		return; // Don't process input from banned users
-	};
-	
-	if (message.content === "new") {
-		
+	};	
+	if (message.reference) { // Check if the message is a reply
+		if ((await message.channel.messages.fetch(message.reference.messageId)).author.id == clientId) {
+			replyToMe = (await message.channel.messages.fetch(message.reference.messageId)).content;
+		} else {
+			return; // If it is not a reply to the bot, then don't interact with ti
+		}
 	};
 
 	// query openai with the prompt
 	try {
+		let sendToAi = [];
+		if (replyToMe == `No`) {
+			sendToAi = [
+				{role: "system", content: "you are a sociable chat bot named Hubert in a discord server for LGBTQ people. Respond concisely."},
+				{role: "user", content: message.content}];
+		} else {
+			sendToAi = [
+				{role: "system", content: "you are a sociable chat bot named Hubert in a discord server for LGBTQ people. Respond concisely."},
+				{role: "assistant", content: replyToMe}, // If its a reply to a previous bot message, include that message in the query for increased context
+				{role: "user", content: message.content}];
+		}
 		const completion = await openai.createChatCompletion({
 		model: "gpt-3.5-turbo",
-		messages: [
-			{role: "system", content: "you are a sociable chat bot named Hubert in a discord server for LGBTQ people. Respond concisely."},
-			{role: "user", content: message.content}],
+		messages: sendToAi,
 		max_tokens: 100,
 		temperature: 1.3,
 		user: message.author.id,
@@ -81,11 +95,14 @@ client.on("messageCreate", async message => {
 		}
 		, 6000);
 	} catch (error) {
-		if (error.response.status == 429) {
-			client.users.cache.get(message.author.id).send(`Sorry! I can only handle so many messages per minute. Try again in a minute.`);
+		if (error.response) {
+			if (error.response.status == 429) {
+				client.users.cache.get(message.author.id).send(`Sorry! I can only handle so many messages per minute. Try again in a minute.`);
+			}
 		}
+		console.error(error)
 		errHandle(`OpenAI request error\n${error}`, 1, client);
-	}
+	};
 });
 
 // Process slash command interactions
