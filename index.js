@@ -26,6 +26,7 @@ const client = new Client({
 		}
 	}
 });
+client.options.failIfNotExists = false;
 
 // Register commands from commands directory
 client.commands = new Collection();
@@ -67,11 +68,11 @@ client.on("messageCreate", async message => {
 		let sendToAi = [];
 		if (replyToMe == `No`) {
 			sendToAi = [
-				{role: "system", content: `you are a sociable chat bot named Hubert in a discord server named ${message.guild.name}. The description of the server, if one exists, is here: ${message.guild.description}. Respond concisely.`},
+				{role: "system", content: `you are a sociable chat bot named Hubert in a discord server named ${message.guild.name}. The description of the server, if one exists, is here: ${message.guild.description}. Don't state the description directly, but keep it in mind when interacting. Respond concisely.`},
 				{role: "user", content: message.content}];
 		} else {
 			sendToAi = [
-				{role: "system", content: `you are a sociable chat bot named Hubert in a discord server named ${message.guild.name}. The description of the server, if one exists, is here: ${message.guild.description}. Respond concisely.`},
+				{role: "system", content: `you are a sociable chat bot named Hubert in a discord server named ${message.guild.name}. The description of the server, if one exists, is here: ${message.guild.description}. Don't state the description directly, but keep it in mind when interacting. Respond concisely.`},
 				{role: "assistant", content: replyToMe}, // If its a reply to a previous bot message, include that message in the query for increased context
 				{role: "user", content: message.content}];
 		}
@@ -85,7 +86,7 @@ client.on("messageCreate", async message => {
 
 		console.log(`User asked: "${message.content}"`)
 		console.log(`OpenAI responded with ${completion.data.usage.total_tokens} (${completion.data.usage.prompt_tokens}/${completion.data.usage.completion_tokens}) tokens: "${completion.data.choices[0].message.content}"`);
-		client.channels.cache.get(channelId).sendTyping();
+		message.channel.id.sendTyping();
 		client.user.setPresence({status: 'online'});
 		try{
 			setTimeout(() => {
