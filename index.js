@@ -48,7 +48,7 @@ try {
 client.on("messageCreate", async message => {
 	let replyToMe = `No`;
 	if (message.channel.id !== channelId) return; // Ignore messages sent ouside operational channel
-	//if (message.author.bot) return; // Ignore bot messages (namely itself)
+	if (message.author.bot) return; // Ignore bot messages (namely itself)
 	if (message.system) return; // Ignore system messages
 	if (func.isBanned(message.author.id)) {
 		client.users.cache.get(message.author.id).send(`You do not have permission to interact with me.`);
