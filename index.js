@@ -32,7 +32,7 @@ client.commands = new Collection();
 const commandFiles = fs.readdirSync('./commands').filter(file => file.endsWith('.js'));
 
 try {
-	for (const file of commandFiles) {
+	for (file of commandFiles) {
 		const command = require(`./commands/${file}`);
 		client.commands.set(command.data.name, command);
 	}
@@ -76,7 +76,6 @@ client.on("messageCreate", async message => {
 			message.reply({content: completion.data.choices[0].message.content});
 		}, 4000);
 	} catch (error) {
-		console.error(error.data.error);
 		if (error.response.status == 429) {
 			message.reply({ephemeral: true, content: `Sorry! I can only handle so many messages per minute. Try again in a minute.`});
 		}
