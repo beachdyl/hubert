@@ -62,7 +62,7 @@ client.on("messageCreate", async message => {
 		const completion = await openai.createChatCompletion({
 		model: "gpt-3.5-turbo",
 		messages: [
-			{role: "system", content: "you are a sociable chat bot named Hubert in a discord server for LGBTQ people."},
+			{role: "system", content: "you are a sociable chat bot named Hubert in a discord server for LGBTQ people. Respond concisely."},
 			{role: "user", content: message.content}],
 		max_tokens: 100,
 		temperature: 1.3,
