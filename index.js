@@ -67,11 +67,11 @@ client.on("messageCreate", async message => {
 		let sendToAi = [];
 		if (replyToMe == `No`) {
 			sendToAi = [
-				{role: "system", content: "you are a sociable chat bot named Hubert in a discord server for LGBTQ people. Respond concisely."},
+				{role: "system", content: "you are a sociable chat bot named Hubert in a discord server for LGBTQ people named Gayliens. Respond concisely."},
 				{role: "user", content: message.content}];
 		} else {
 			sendToAi = [
-				{role: "system", content: "you are a sociable chat bot named Hubert in a discord server for LGBTQ people. Respond concisely."},
+				{role: "system", content: "you are a sociable chat bot named Hubert in a discord server for LGBTQ people named Gayliens. Respond concisely."},
 				{role: "assistant", content: replyToMe}, // If its a reply to a previous bot message, include that message in the query for increased context
 				{role: "user", content: message.content}];
 		}
