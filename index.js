@@ -75,10 +75,11 @@ client.on("messageCreate", async message => {
 		setTimeout(() => {
 			try{
 				message.reply({content: completion.data.choices[0].message.content});
-			} catch (error {
+			} catch (error) {
 				errHandle(`Reply to prompt\n${error}`, 1, client);
-			})
-		}, 6000);
+			}
+		}
+		, 6000);
 	} catch (error) {
 		if (error.response.status == 429) {
 			client.users.cache.get(message.author.id).send(`Sorry! I can only handle so many messages per minute. Try again in a minute.`);
