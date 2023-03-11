@@ -47,7 +47,7 @@ try {
 // Process text messages
 client.on("messageCreate", async message => {
 	let replyToMe = `No`;
-	if (message.channel.id !== channelId) return; // Ignore messages sent ouside operational channel
+	if (message.channel.name !== `hubert`) return; // Ignore messages sent ouside operational channels
 	if (message.author.bot) return; // Ignore bot messages (namely itself)
 	if (message.system) return; // Ignore system messages
 	if (func.isBanned(message.author.id)) {
@@ -67,11 +67,11 @@ client.on("messageCreate", async message => {
 		let sendToAi = [];
 		if (replyToMe == `No`) {
 			sendToAi = [
-				{role: "system", content: "you are a sociable chat bot named Hubert in a discord server for LGBTQ people named Gayliens. Respond concisely."},
+				{role: "system", content: `you are a sociable chat bot named Hubert in a discord server named ${message.guild.name}. The description of the server, if one exists, is here: ${message.guild.description}. Respond concisely.`},
 				{role: "user", content: message.content}];
 		} else {
 			sendToAi = [
-				{role: "system", content: "you are a sociable chat bot named Hubert in a discord server for LGBTQ people named Gayliens. Respond concisely."},
+				{role: "system", content: `you are a sociable chat bot named Hubert in a discord server named ${message.guild.name}. The description of the server, if one exists, is here: ${message.guild.description}. Respond concisely.`},
 				{role: "assistant", content: replyToMe}, // If its a reply to a previous bot message, include that message in the query for increased context
 				{role: "user", content: message.content}];
 		}
@@ -86,15 +86,14 @@ client.on("messageCreate", async message => {
 		console.log(`User asked: "${message.content}"`)
 		console.log(`OpenAI responded with ${completion.data.usage.total_tokens} (${completion.data.usage.prompt_tokens}/${completion.data.usage.completion_tokens}) tokens: "${completion.data.choices[0].message.content}"`);
 		client.channels.cache.get(channelId).sendTyping();
-		setTimeout(() => {
-			try{
+		client.user.setPresence({status: 'online'});
+		try{
+			setTimeout(() => {
 				message.reply({content: completion.data.choices[0].message.content});
-				client.user.setPresence({status: 'online'});
-			} catch (error) {
-				errHandle(`Reply to prompt\n${error}`, 1, client);
-			}
-		}
-		, 6000);
+			}, 6000);
+		} catch (error) {
+			errHandle(`Reply to prompt\n${error}`, 1, client);
+		};
 	} catch (error) {
 		if (error.response) {
 			if (error.response.status == 429) {
@@ -105,10 +104,14 @@ client.on("messageCreate", async message => {
 				} catch (error) {
 					errHandle(`Rate limit message error\n${error}`, 1, client);
 				}
+			} else {
+				console.error(error)
+				errHandle(`OpenAI request error\n${error}`, 1, client);
 			}
+		} else {
+			console.error(error)
+			errHandle(`OpenAI request error\n${error}`, 1, client);
 		}
-		console.error(error)
-		errHandle(`OpenAI request error\n${error}`, 1, client);
 	};
 });
 
