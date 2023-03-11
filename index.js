@@ -49,7 +49,7 @@ client.on("messageCreate", async message => {
 	if (message.channel.id !== channelId) return; // Ignore messages sent ouside operational channel
 	if (message.author.bot) return; // Ignore bot messages (namely itself)
 	if (func.isBanned(message.author.id)) {
-		message.reply({ephemeral: true, content: `You do not have permission to interact with me.`});
+		client.users.cache.get(message.author.id).send(`You do not have permission to interact with me.`);
 		return; // Don't process input from banned users
 	};
 	
@@ -77,7 +77,7 @@ client.on("messageCreate", async message => {
 		}, 4000);
 	} catch (error) {
 		if (error.response.status == 429) {
-			message.reply({ephemeral: true, content: `Sorry! I can only handle so many messages per minute. Try again in a minute.`});
+			client.users.cache.get(message.author.id).send(`Sorry! I can only handle so many messages per minute. Try again in a minute.`);
 		}
 		errHandle(`OpenAI request error\n${error}`, 1, client);
 	}
