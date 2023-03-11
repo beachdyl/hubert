@@ -48,7 +48,7 @@ try {
 client.on("messageCreate", async message => {
 	let replyToMe = `No`;
 	if (message.channel.id !== channelId) return; // Ignore messages sent ouside operational channel
-	if (message.author.bot) return; // Ignore bot messages (namely itself)
+	//if (message.author.bot) return; // Ignore bot messages (namely itself)
 	if (message.system) return; // Ignore system messages
 	if (func.isBanned(message.author.id)) {
 		client.users.cache.get(message.author.id).send(`You do not have permission to interact with me.`);
@@ -97,7 +97,11 @@ client.on("messageCreate", async message => {
 	} catch (error) {
 		if (error.response) {
 			if (error.response.status == 429) {
-				client.users.cache.get(message.author.id).send(`Sorry! I can only handle so many messages per minute. Try again in a minute.`);
+				try{
+					client.users.cache.get(message.author.id).send(`Sorry! I can only handle so many messages per minute. Try again in a minute.`);
+				} catch (error) {
+					errHandle(`Rate limit DM error\n${error}`, 1, client);
+				}
 			}
 		}
 		console.error(error)
