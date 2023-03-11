@@ -58,16 +58,24 @@ client.on("messageCreate", message => {
 	};
 
 	// query openai with the prompt
-	const completion = openai.createChatCompletion({
+	try {
+		const completion = openai.createChatCompletion({
 		model: "gpt-3.5-turbo",
 		messages: [{role: "user", content: message.content}],
 		max_tokens: 20,
 		temperature: 0.5,
 		user: message.author.id,
-	});
-	//console.log(completion.data.choices[0].message);
-
-	message.reply({content: completion.data.choices[0].message});
+		});
+	} catch (error) {
+		errHandle(`OpenAI request error\n${error}`, 1, client);
+	}
+	try{
+		console.log(completion.data.choices[0].message);
+		message.reply({content: completion.data.choices[0].message});
+	} catch (error) {
+		errHandle(`OpenAI response discord reply error\n${error}`, 1, client);
+	}
+	
 
 });
 
@@ -120,7 +128,7 @@ client.on('ready', () => {
 	const readyEmbed = new MessageEmbed()
 		.setColor('#00ff00')
 		.setTitle('Ready to rock and roll!')
-		.setAuthor('Sector', 'https://i.ibb.co/BVKGkd9/gayliens.png', 'https://beachdyl.com')
+		.setAuthor('Hubert', 'https://i.ibb.co/BVKGkd9/gayliens.png', 'https://beachdyl.com')
 		.setDescription('I was asleep, but I am no longer asleep! To make a long story short, ~~I put a whole bag of jellybeans~~ **good morning**!')
 		.setTimestamp();
 	client.channels.cache.get(devChannelId).send({embeds: [readyEmbed] });
