@@ -76,6 +76,10 @@ client.on("messageCreate", async message => {
 			message.reply({content: completion.data.choices[0].message.content});
 		}, 4000);
 	} catch (error) {
+		console.error(error.data.error);
+		if (error.response.status == 429) {
+			message.reply({ephemeral: true, content: `Sorry! I can only handle so many messages per minute. Try again in a minute.`});
+		}
 		errHandle(`OpenAI request error\n${error}`, 1, client);
 	}
 });
