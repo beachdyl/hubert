@@ -45,7 +45,7 @@ try {
 }
 
 // Process text messages
-client.on("messageCreate", message => {
+client.on("messageCreate", async message => {
 	if (message.channel.id !== channelId) return; // Ignore messages sent ouside operational channel
 	if (message.author.bot) return; // Ignore bot messages (namely itself)
 	if (func.isBanned(message.author.id)) {
@@ -59,24 +59,19 @@ client.on("messageCreate", message => {
 
 	// query openai with the prompt
 	try {
-		const completion = openai.createChatCompletion({
+		const completion = await openai.createChatCompletion({
 		model: "gpt-3.5-turbo",
 		messages: [{role: "user", content: message.content}],
 		max_tokens: 20,
 		temperature: 0.5,
 		user: message.author.id,
 		});
+
+		console.log(completion.data.choices[0].message.content);
+		message.reply({content: completion.data.choices[0].message.content});
 	} catch (error) {
 		errHandle(`OpenAI request error\n${error}`, 1, client);
 	}
-	try{
-		console.log(completion.data.choices[0].message);
-		message.reply({content: completion.data.choices[0].message});
-	} catch (error) {
-		errHandle(`OpenAI response discord reply error\n${error}`, 1, client);
-	}
-	
-
 });
 
 // Process slash command interactions
