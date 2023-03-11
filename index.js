@@ -58,7 +58,7 @@ client.on("messageCreate", async message => {
 		if ((await message.channel.messages.fetch(message.reference.messageId)).author.id == clientId) {
 			replyToMe = (await message.channel.messages.fetch(message.reference.messageId)).content;
 		} else {
-			return; // If it is not a reply to the bot, then don't interact with ti
+			return; // If it is not a reply to the bot, then don't interact with it
 		}
 	};
 
