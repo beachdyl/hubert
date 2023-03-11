@@ -64,13 +64,13 @@ client.on("messageCreate", async message => {
 		messages: [
 			{role: "system", content: "you are a sociable chat bot named Hubert in a discord server for LGBTQ people."},
 			{role: "user", content: message.content}],
-		max_tokens: 50,
+		max_tokens: 100,
 		temperature: 1.3,
 		user: message.author.id,
 		});
 
 		console.log(`User asked: "${message.content}"`)
-		console.log(`OpenAI responded with ${completion.data.usage.total_tokens} tokens: "${completion.data.choices[0].message.content}"`);
+		console.log(`OpenAI responded with ${completion.data.usage.total_tokens} (${completion.data.usage.prompt_tokens}/${completion.data.usage.completion_tokens}) tokens: "${completion.data.choices[0].message.content}"`);
 		client.channels.cache.get(channelId).sendTyping();
 		setTimeout(() => {
 			message.reply({content: completion.data.choices[0].message.content});
