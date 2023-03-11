@@ -8,10 +8,9 @@ const func = require('./functions.js');
 // import openai integration data
 const { Configuration, OpenAIApi } = require("openai");
 const configuration = new Configuration({
-    apiKey: process.env.openaiKey,
+    apiKey: openaiKey,
 });
 const openai = new OpenAIApi(configuration);
-const response = await openai.listEngines();
 
 // Try deleting old errorTemp.txt if it exists
 try {fs.unlinkSync('./errorTemp.txt');}
@@ -58,16 +57,18 @@ client.on("messageCreate", message => {
 		
 	};
 
-	message.reply({content: `I've processed your message. It will be posted under the name **${func.getNickname(message.author.id)}**.\nJust so you know, you can also run \`/message {your message}\` in the server. It's still anonymous.\n\n Your message was posted here: https://discord.com/channels/${guildId}/${channelId}`});
+	// query openai with the prompt
+	const completion = openai.createChatCompletion({
+		model: "gpt-3.5-turbo",
+		messages: [{role: "user", content: message.content}],
+		max_tokens: 20,
+		temperature: 0.5,
+		user: message.author.id,
+	});
+	//console.log(completion.data.choices[0].message);
 
-	// Send embed with message
-	const messageEmbed = new MessageEmbed()
-		.setTitle(`Message from ${func.getNickname(message.author.id)}:`)
-		.setColor(func.getColor(message.author.id))
-		//.setAuthor(func.getNickname(message.author.id))
-		.setDescription(message.content)
-		//.setFooter('Sector', 'https://i.ibb.co/BVKGkd9/gayliens.png')
-	client.channels.cache.get(channelId).send({embeds: [messageEmbed] });
+	message.reply({content: completion.data.choices[0].message});
+
 });
 
 // Process slash command interactions
@@ -87,18 +88,6 @@ client.on('interactionCreate', async interaction => {
 		client.user.setPresence({status: 'idle'});
 		errHandle(`Requested restart`, 8, client)
 	}
-
-	// If interaction is message command, do things
-	if (interaction.commandName === 'message') {
-		const messageEmbed = new MessageEmbed()
-		.setTitle(`Message from ${func.getNickname(interaction.user.id)}:`)
-		.setColor(func.getColor(interaction.user.id))
-		//.setAuthor(func.getNickname(interaction.user.id))
-		.setDescription(interaction.options.getString('message'))
-		//.setFooter('Sector', 'https://i.ibb.co/BVKGkd9/gayliens.png')
-	client.channels.cache.get(channelId).send({embeds: [messageEmbed] });
-	}
-
 	
 	try {
 		await command.execute(interaction);
