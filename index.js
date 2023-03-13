@@ -65,17 +65,14 @@ client.on("messageCreate", async message => {
 
 	// query openai with the prompt
 	try {
-		let sendToAi = [];
-		if (replyToMe == `No`) {
-			sendToAi = [
-				{role: "system", content: `you are a sociable chat bot named Hubert in a discord server named ${message.guild.name}. The description of the server, if one exists, is here: ${message.guild.description}. Don't state the description directly, but keep it in mind when interacting. Respond concisely.`},
-				{role: "user", content: message.content}];
-		} else {
-			sendToAi = [
-				{role: "system", content: `you are a sociable chat bot named Hubert in a discord server named ${message.guild.name}. The description of the server, if one exists, is here: ${message.guild.description}. Don't state the description directly, but keep it in mind when interacting. Respond concisely.`},
-				{role: "assistant", content: replyToMe}, // If its a reply to a previous bot message, include that message in the query for increased context
-				{role: "user", content: message.content}];
-		}
+		let sendToAi = [
+			{role: "system", content: `you are a sociable chat bot named Hubert in a discord server named ${message.guild.name}. The description of the server, if one exists, is here: ${message.guild.description}. Don't state the description directly, but keep it in mind when interacting. Respond concisely.`},
+			{role: "user", content: message.content}
+		];
+		if (replyToMe != "No") {
+			sendToAi.splice(1, 0, {role: "assistant", content: replyToMe}); // add a bit of context if the user is replying to the bot
+		};
+
 		const completion = await openai.createChatCompletion({
 		model: "gpt-3.5-turbo",
 		messages: sendToAi,
