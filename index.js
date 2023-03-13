@@ -20,11 +20,6 @@ catch (error) {}
 const client = new Client({
 	intents: [Intents.FLAGS.GUILDS, Intents.FLAGS.GUILD_MESSAGES, Intents.FLAGS.GUILD_MESSAGE_REACTIONS, Intents.FLAGS.DIRECT_MESSAGES, Intents.FLAGS.GUILD_MESSAGE_TYPING],
 	partials: ["CHANNEL"],
-	presence: {
-		activity: {
-			type: "WATCHING", name: "people talk"
-		}
-	}
 });
 client.options.failIfNotExists = false;
 
@@ -156,8 +151,14 @@ client.on('interactionCreate', interaction => {
 
 // Do things once the bot is ready
 client.on('ready', () => {
-	// Set the bot status to online
-	client.user.setPresence({status: 'online'});
+	// Set the bot status to online and set its presence
+	client.user.setPresence({
+		status: 'online',
+		activity: {
+			type: "LISTENING",
+			name: "to your insightful words"
+		}
+	});
 
 	// Send a good morning embed
 	const readyEmbed = new MessageEmbed()
