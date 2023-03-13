@@ -51,22 +51,22 @@ client.on("messageCreate", async message => {
 	if (message.channel.name !== `hubert`) return; // Ignore messages sent ouside operational channels
 	if (message.author.bot) return; // Ignore bot messages (namely itself)
 	if (message.system) return; // Ignore system messages
-	if (func.isBanned(message.author.id)) {
+	if (func.isBanned(message.author.id)) { // Don't process input from banned users
 		client.users.cache.get(message.author.id).send(`You do not have permission to interact with me.`);
-		return; // Don't process input from banned users
+		return; 
 	};	
 	if (message.reference) { // Check if the message is a reply
 		if ((await message.channel.messages.fetch(message.reference.messageId)).author.id == clientId) {
 			replyToMe = true;
 		} else {
-			return; // If it is not a reply to the bot, then don't interact with it
+			return; // If it is a reply, but not to the bot, then don't interact with it
 		}
 	};
 
 	// query openai with the prompt
 	try {
 		let sendToAi = [
-			{role: "system", content: `you are a sociable chat bot named Hubert in a discord server named ${message.guild.name}. The description of the server, if one exists, is here: ${message.guild.description}. Don't state the description directly, but keep it in mind when interacting. Respond concisely.`},
+			{role: "system", content: `You are a sociable chat bot named Hubert in a discord server named ${message.guild.name}. The description of the server, if one exists, is here: ${message.guild.description}. Don't state the description directly, but keep it in mind when interacting. Respond concisely.`},
 			{role: "user", content: message.content}
 		];
 		if (replyToMe) { // add a bit of context if the user is replying to the bot
@@ -180,21 +180,6 @@ client.on('interactionCreate', interaction => {
 		fs.accessSync('./tempError.txt');
 		errHandle(fs.readFileSync('./tempError.txt'), 3, client);
 	} catch {}
-});
-
-// Check for unhandled errors on each interaction
-client.on('interactionCreate', interaction => {
-	let refDate = parseInt(fs.readFileSync('./files/Day.txt'), 10);
-	let d = new Date()
-	let nowDate = d.getDay()
-	if (refDate !== nowDate) {
-		fs.unlinkSync('./files/Nicknames.txt');
-		fs.appendFileSync('./files/Nicknames.txt',`\n`);
-
-		fs.writeFileSync('./files/Day.txt',`${nowDate}`)
-
-		console.log('Reset Nickname file for new date.')
-	}
 });
 
 // Login to Discord using the secret token
