@@ -88,7 +88,8 @@ client.on("messageCreate", async message => {
 		try{
 			setTimeout(() => {
 				message.reply({content: completion.data.choices[0].message.content});
-			}, 6000);
+			},
+			Math.floor(Math.random() * (8500 - 4000 + 1)) + 4000);
 		} catch (error) {
 			errHandle(`Reply to prompt\n${error}`, 1, client);
 		};
