@@ -18,7 +18,7 @@ catch (error) {}
 
 // Create a new client instance
 const client = new Client({
-	intents: [Intents.FLAGS.GUILDS, Intents.FLAGS.GUILD_MESSAGES, Intents.FLAGS.GUILD_MESSAGE_REACTIONS, Intents.FLAGS.DIRECT_MESSAGES, Intents.FLAGS.GUILD_MESSAGE_TYPING],
+	intents: [Intents.FLAGS.GUILDS, Intents.FLAGS.GUILD_MESSAGES, Intents.FLAGS.GUILD_MESSAGE_REACTIONS, Intents.FLAGS.DIRECT_MESSAGES, Intents.FLAGS.GUILD_MESSAGE_TYPING, Intents.FLAGS.GUILD_PRESENCES],
 	partials: ["CHANNEL"],
 });
 client.options.failIfNotExists = false;
@@ -72,7 +72,7 @@ client.on("messageCreate", async message => {
 		const completion = await openai.createChatCompletion({
 			model: "gpt-3.5-turbo",
 			messages: sendToAi,
-			max_tokens: 150,
+			max_tokens: 400,
 			temperature: 1.3,
 			user: message.author.id,
 		});
@@ -154,9 +154,9 @@ client.on('ready', () => {
 	// Set the bot status to online and set its status
 	client.user.setPresence({
 		status: 'online',
-		activity: {
-			type: "LISTENING",
-			name: "to your insightful words"
+		activities: {
+			name: "to your insightful words",
+			type: "LISTENING"
 		}
 	});
 
