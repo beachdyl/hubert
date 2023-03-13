@@ -1,7 +1,7 @@
 // Require the necessary discord.js classes
 const fs = require('fs');
 const { Client, Collection, Intents, MessageEmbed } = require('discord.js');
-const { token, clientId, guildId, channelId, devChannelId, openaiKey } = require('./config.json');
+const { token, clientId, devChannelId, openaiKey } = require('./config.json');
 const { errHandle } = require('@beachdyl/error_handler');
 const func = require('./functions.js');
 
