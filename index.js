@@ -71,7 +71,7 @@ client.on("messageCreate", async message => {
 		];
 		if (replyToMe) { // add a bit of context if the user is replying to the bot
 			sendToAi.splice(1, 0, {role: "assistant", content: (await message.channel.messages.fetch(message.reference.messageId)).content}); 
-			sendToAi.splice(2, 0, {role: "user", content: (await message.channel.messages.fetch((await message.channel.messages.fetch(message.reference.messageId)).reference.messageId)).content}); 
+			sendToAi.splice(1, 0, {role: "user", content: (await message.channel.messages.fetch((await message.channel.messages.fetch(message.reference.messageId)).reference.messageId)).content}); 
 		};
 
 		const completion = await openai.createChatCompletion({
