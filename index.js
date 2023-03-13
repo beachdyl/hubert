@@ -151,7 +151,7 @@ client.on('interactionCreate', interaction => {
 
 // Do things once the bot is ready
 client.on('ready', () => {
-	// Set the bot status to online and set its presence
+	// Set the bot status to online and set its status
 	client.user.setPresence({
 		status: 'online',
 		activity: {
