@@ -47,7 +47,7 @@ try {
 
 // Process text messages
 client.on("messageCreate", async message => {
-	let replyToMe = `No`;
+	let replyToMe = false;
 	if (message.channel.name !== `hubert`) return; // Ignore messages sent ouside operational channels
 	if (message.author.bot) return; // Ignore bot messages (namely itself)
 	if (message.system) return; // Ignore system messages
@@ -57,7 +57,7 @@ client.on("messageCreate", async message => {
 	};	
 	if (message.reference) { // Check if the message is a reply
 		if ((await message.channel.messages.fetch(message.reference.messageId)).author.id == clientId) {
-			replyToMe = (await message.channel.messages.fetch(message.reference.messageId)).content;
+			replyToMe = true;
 		} else {
 			return; // If it is not a reply to the bot, then don't interact with it
 		}
@@ -69,16 +69,17 @@ client.on("messageCreate", async message => {
 			{role: "system", content: `you are a sociable chat bot named Hubert in a discord server named ${message.guild.name}. The description of the server, if one exists, is here: ${message.guild.description}. Don't state the description directly, but keep it in mind when interacting. Respond concisely.`},
 			{role: "user", content: message.content}
 		];
-		if (replyToMe != "No") {
-			sendToAi.splice(1, 0, {role: "assistant", content: replyToMe}); // add a bit of context if the user is replying to the bot
+		if (replyToMe) { // add a bit of context if the user is replying to the bot
+			sendToAi.splice(1, 0, {role: "assistant", content: (await message.channel.messages.fetch(message.reference.messageId)).content}); 
+			sendToAi.splice(2, 0, {role: "user", content: (await message.channel.messages.fetch((await message.channel.messages.fetch(message.reference.messageId)).reference.messageId)).content}); 
 		};
 
 		const completion = await openai.createChatCompletion({
-		model: "gpt-3.5-turbo",
-		messages: sendToAi,
-		max_tokens: 100,
-		temperature: 1.3,
-		user: message.author.id,
+			model: "gpt-3.5-turbo",
+			messages: sendToAi,
+			max_tokens: 100,
+			temperature: 1.3,
+			user: message.author.id,
 		});
 
 		console.log(`User in ${message.guild.name} asked: "${message.content}" and Hubert responded with ${completion.data.usage.total_tokens} (${completion.data.usage.prompt_tokens}/${completion.data.usage.completion_tokens}) tokens: "${completion.data.choices[0].message.content}"`);
