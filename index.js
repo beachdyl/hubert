@@ -77,7 +77,7 @@ client.on("messageCreate", async message => {
 			user: message.author.id,
 		});
 
-		console.log(`User in ${message.guild.name} asked: "${message.content}" and Hubert responded with ${completion.data.usage.total_tokens} (${completion.data.usage.prompt_tokens}/${completion.data.usage.completion_tokens}) tokens: "${completion.data.choices[0].message.content}"`);
+		console.log(`${message.author.name} <@${message.author.id}> in ${message.guild.name} asked: "${message.content}" and Hubert responded with ${completion.data.usage.total_tokens} (${completion.data.usage.prompt_tokens}/${completion.data.usage.completion_tokens}) tokens: "${completion.data.choices[0].message.content}"`);
 		message.channel.sendTyping();
 		client.user.setPresence({status: 'online'});
 		try{
