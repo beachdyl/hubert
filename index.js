@@ -23,33 +23,12 @@ const client = new Client({
 });
 client.options.failIfNotExists = false;
 
-// Register commands from commands directory
-client.commands = new Collection();
-const commandFiles = fs.readdirSync('./commands').filter(file => file.endsWith('.js'));
-
-try {
-	for (file of commandFiles) {
-		const command = require(`./commands/${file}`);
-		client.commands.set(command.data.name, command);
-	}
-} catch (error) {
-	try {
-		errHandle(`Command registration of command named ${command.data.name}\n${error}`, 1, client);
-	} catch (error) {
-		errHandle(`Command registration of unknown command\n${error}`, 1, client);
-	}
-}
-
 // Process text messages
 client.on("messageCreate", async message => {
 	let replyToMe = false;
 	if (message.channel.name !== `hubert`) return; // Ignore messages sent ouside operational channels
 	if (message.author.bot) return; // Ignore bot messages (namely itself)
 	if (message.system) return; // Ignore system messages
-	if (func.isBanned(message.author.id)) { // Don't process input from banned users
-		client.users.cache.get(message.author.id).send(`You do not have permission to interact with me.`);
-		return; 
-	};	
 	if (message.reference) { // Check if the message is a reply
 		if ((await message.channel.messages.fetch(message.reference.messageId)).author.id == clientId) {
 			replyToMe = true;
@@ -77,7 +56,7 @@ client.on("messageCreate", async message => {
 			user: message.author.id,
 		});
 
-		console.log(`${message.author.name} <@${message.author.id}> in ${message.guild.name} asked: "${message.content}" and Hubert responded with ${completion.data.usage.total_tokens} (${completion.data.usage.prompt_tokens}/${completion.data.usage.completion_tokens}) tokens: "${completion.data.choices[0].message.content}"`);
+		console.log(`${message.author.username} <@${message.author.id}> in ${message.guild.name} asked: "${message.content}" and Hubert responded with ${completion.data.usage.total_tokens} (${completion.data.usage.prompt_tokens}/${completion.data.usage.completion_tokens}) tokens: "${completion.data.choices[0].message.content}"`);
 		message.channel.sendTyping();
 		client.user.setPresence({status: 'online'});
 		try{
@@ -112,35 +91,7 @@ client.on("messageCreate", async message => {
 // Process slash command interactions
 client.on('interactionCreate', async interaction => {
 	if (!interaction.isCommand()) return;
-	if (func.isBanned(interaction.user.id)) {
-		interaction.reply({ephemeral: true, content: `You do not have permission to interact with me.`});
-		return; // Don't process input from banned users
-	};
-	
-	const command = client.commands.get(interaction.commandName);
-
-	if (!command) return;
-
-	// If interaction is restart command, do things
-	if (interaction.commandName === 'restart') {
-		client.user.setPresence({status: 'idle'});
-		errHandle(`Requested restart`, 8, client)
-	}
-	
-	try {
-		await command.execute(interaction);
-	} catch (error) {
-		try {
-			errHandle(`Interaction named ${interaction.commandName}\n${error}`, 1, client);
-			await interaction.reply({ content: 'There was an error while executing this command!', ephemeral: true });
-		} catch (error) {
-			try {
-				errHandle(`Error of interaction named ${interaction.commandName}\n${error}`, 5, client);
-			} catch (error) {
-				errHandle(`Error of interaction of unknown name\n${error}`, 5, client);
-			}
-		}
-	}
+	errHandle(interaction, 1, client);
 });
 
 // Process button interactions
