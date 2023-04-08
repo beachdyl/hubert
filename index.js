@@ -3,7 +3,6 @@ const fs = require('fs');
 const { Client, Collection, Intents, MessageEmbed } = require('discord.js');
 const { token, clientId, devChannelId, openaiKey } = require('./config.json');
 const { errHandle } = require('@beachdyl/error_handler');
-const func = require('./functions.js');
 
 // import openai integration data
 const { Configuration, OpenAIApi } = require("openai");
@@ -52,7 +51,7 @@ client.on("messageCreate", async message => {
 			model: "gpt-3.5-turbo",
 			messages: sendToAi,
 			max_tokens: 400,
-			temperature: 1.3,
+			temperature: 1.2,
 			user: message.author.id,
 		});
 
