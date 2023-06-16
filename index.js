@@ -50,16 +50,13 @@ client.on("messageCreate", async message => {
 		};
 	};
 
-	console.log(replyId);
 	messageContainerContainer.push(new messageContainer(message.author.id, message.timestamp, message.id, replyId, message.content));
-console.log(1);
 	// Find message history
 	if (replyToMe) {
 		let pointerMessage = messageContainerContainer[messageContainerContainer.length - 1];
 		let looper = true;
 		var messageCollection = new Array();
 		messageCollection.push(pointerMessage)
-		console.log(2);
 		let count = 0;
 		while(looper) {
 			count++;
@@ -68,8 +65,6 @@ console.log(1);
 				if (pointerMessage.getReplyId() == testMessage.getMessageId()) {
 					messageCollection.push(testMessage)
 					pointerMessage = testMessage;
-					console.log("yes");
-					console.log(i);
 				};
 			};
 			
@@ -79,16 +74,13 @@ console.log(1);
 			};
 		};
 	};
-	console.log(3);
 	// query openai with the prompt
 	try {
 		let sendToAi = [
-			{role: "system", content: `You are a sociable chatbot named Hubert in a discord server named ${message.guild.name}. The description of the server, if one exists, is here: "${message.guild.description}". Don't state the description directly, but keep it in mind when interacting. Respond concisely. If a message seems to be lacking context, remind users that they need to reply directly to your messages in order for you to have context into the conversation.`},
-			{role: "user", content: message.content}
+			{role: "system", content: `You are a sociable chatbot named Hubert in a discord server named ${message.guild.name}. The description of the server, if one exists, is here: "${message.guild.description}". Don't state the description directly, but keep it in mind when interacting. Respond concisely. If a message seems to be lacking context, remind users that they need to reply directly to your messages in order for you to have context into the conversation.`}
 		];
-		if (replyToMe) { // add a bit of context if the user is replying to the bot
-			//sendToAi.splice(1, 0, {role: "assistant", content: (await message.channel.messages.fetch(message.reference.messageId)).content}); 
-			//sendToAi.splice(1, 0, {role: "user", content: (await message.channel.messages.fetch((await message.channel.messages.fetch(message.reference.messageId)).reference.messageId)).content}); 
+		if (replyToMe) { 
+
 			
 			// Add context from the context collector
 			for (let i = 0; i < messageCollection.length; i++) {
@@ -98,12 +90,15 @@ console.log(1);
 				if (tempMessage.getUser() == client.user.id) {
 					bread = "assistant";
 				};
-console.log(i);
 				sendToAi.splice(1, 0, {role: bread, content: tempMessage.getMessage()});
 			};
-		};
 
-console.log(sendToAi);
+			// if reply is not in memory, get content directly
+			if (messageContainerContainer.length < 2) {
+				sendToAi.splice(1, 0, {role: "assistant", content: (await message.channel.messages.fetch(message.reference.messageId)).content}); 
+				sendToAi.splice(1, 0, {role: "user", content: (await message.channel.messages.fetch((await message.channel.messages.fetch(message.reference.messageId)).reference.messageId)).content}); 
+			};
+		};
 
 		const completion = await openai.createChatCompletion({
 			model: "gpt-3.5-turbo",
