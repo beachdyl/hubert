@@ -4,6 +4,9 @@ const { Client, Collection, Intents, MessageEmbed } = require('discord.js');
 const { token, clientId, devChannelId, openaiKey } = require('./config.json');
 const { errHandle } = require('@beachdyl/error_handler');
 
+// import message struct
+const { messageContainer } = require('message.js')
+
 // import openai integration data
 const { Configuration, OpenAIApi } = require("openai");
 const configuration = new Configuration({
@@ -22,18 +25,54 @@ const client = new Client({
 });
 client.options.failIfNotExists = false;
 
+var messageContainerContainer = new Array();
+
 // Process text messages
 client.on("messageCreate", async message => {
 	let replyToMe = false;
+	let replyId = null;
 	if (message.channel.name !== `hubert`) return; // Ignore messages sent ouside operational channels
-	if (message.author.bot) return; // Ignore bot messages (namely itself)
+	if (message.author.bot) {
+		if (message.author.id == client.user.id) { // Record the message if it's from Hubert
+			messageContainerContainer.push(new messageContainer(message.author.id, message.timestamp, message.id, message.reference.messageId, message.content));
+		};
+		return // Ignore messages from non Hubert bots
+	};
 	if (message.system) return; // Ignore system messages
 	if (message.reference) { // Check if the message is a reply
 		if ((await message.channel.messages.fetch(message.reference.messageId)).author.id == clientId) {
 			replyToMe = true;
+			replyId = message.reference.messageId;
 		} else {
+			replyId = null;
 			return; // If it is a reply, but not to the bot, then don't interact with it
-		}
+		};
+	};
+
+	messageContainerContainer.push(new messageContainer(message.author.id, message.timestamp, message.id, replyId, message.content));
+
+	// Find message history
+	if (replyToMe) {
+		let pointerMessage = messageContainerContainer[messageContainerContainer.length - 1];
+		let looper = true;
+		var messageCollection = new Array();
+		messageCollection.push(pointerMessage)
+		while(looper) {
+			for (let i = 0; i < messageContainerContainer.length; i++) {
+				let testMessage = messageContainerContainer[i]
+				if (pointerMessage.getReplyId() == testMessage.getMessageId()) {
+					messageCollection.push(testMessage)
+					pointerMessage = testMessage;
+				};
+			};
+			
+			// If the next message in the chain has no reply, we break
+			if (pointerMessage.getReplyId() == null) {
+				looper = false;
+			};
+
+			//TODO: Add a break for length
+		};
 	};
 
 	// query openai with the prompt
@@ -43,8 +82,20 @@ client.on("messageCreate", async message => {
 			{role: "user", content: message.content}
 		];
 		if (replyToMe) { // add a bit of context if the user is replying to the bot
-			sendToAi.splice(1, 0, {role: "assistant", content: (await message.channel.messages.fetch(message.reference.messageId)).content}); 
-			sendToAi.splice(1, 0, {role: "user", content: (await message.channel.messages.fetch((await message.channel.messages.fetch(message.reference.messageId)).reference.messageId)).content}); 
+			//sendToAi.splice(1, 0, {role: "assistant", content: (await message.channel.messages.fetch(message.reference.messageId)).content}); 
+			//sendToAi.splice(1, 0, {role: "user", content: (await message.channel.messages.fetch((await message.channel.messages.fetch(message.reference.messageId)).reference.messageId)).content}); 
+			
+			// Add context from the context collector
+			for (let i = 0; i < messageCollection.length; i++) {
+				let tempMessage = messageCollection[i];
+				// bread role
+				let bread = "user";
+				if (tempMessage.getUser() == client.user.id) {
+					bread = "assistant";
+				};
+
+				sendToAi.splice(1, 0, {role: bread, content: tempMessage.getMessage()});
+			};
 		};
 
 		const completion = await openai.createChatCompletion({
