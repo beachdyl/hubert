@@ -1,11 +1,11 @@
 // Require the necessary discord.js classes
 const fs = require('fs');
-const { Client, Collection, Intents, MessageEmbed } = require('discord.js');
-const { token, clientId, devChannelId, openaiKey } = require('./config.json');
-const { errHandle } = require('@beachdyl/error_handler');
+const { Client, Intents, MessageEmbed } = require('discord.js');
+const { token, devChannelId, openaiKey } = require('./config.json');
+const { errHandle } = require('../error_handler/errorHandler');
 
 // import message struct
-const { messageContainer } = require('message.js')
+const { messageContainer } = require('./message.js')
 
 // import openai integration data
 const { Configuration, OpenAIApi } = require("openai");
@@ -35,12 +35,13 @@ client.on("messageCreate", async message => {
 	if (message.author.bot) {
 		if (message.author.id == client.user.id) { // Record the message if it's from Hubert
 			messageContainerContainer.push(new messageContainer(message.author.id, message.timestamp, message.id, message.reference.messageId, message.content));
+			console.log(message.reference.messageId);
 		};
 		return // Ignore messages from non Hubert bots
 	};
 	if (message.system) return; // Ignore system messages
 	if (message.reference) { // Check if the message is a reply
-		if ((await message.channel.messages.fetch(message.reference.messageId)).author.id == clientId) {
+		if ((await message.channel.messages.fetch(message.reference.messageId)).author.id == client.user.id) {
 			replyToMe = true;
 			replyId = message.reference.messageId;
 		} else {
@@ -49,32 +50,36 @@ client.on("messageCreate", async message => {
 		};
 	};
 
+	console.log(replyId);
 	messageContainerContainer.push(new messageContainer(message.author.id, message.timestamp, message.id, replyId, message.content));
-
+console.log(1);
 	// Find message history
 	if (replyToMe) {
 		let pointerMessage = messageContainerContainer[messageContainerContainer.length - 1];
 		let looper = true;
 		var messageCollection = new Array();
 		messageCollection.push(pointerMessage)
+		console.log(2);
+		let count = 0;
 		while(looper) {
+			count++;
 			for (let i = 0; i < messageContainerContainer.length; i++) {
 				let testMessage = messageContainerContainer[i]
 				if (pointerMessage.getReplyId() == testMessage.getMessageId()) {
 					messageCollection.push(testMessage)
 					pointerMessage = testMessage;
+					console.log("yes");
+					console.log(i);
 				};
 			};
 			
 			// If the next message in the chain has no reply, we break
-			if (pointerMessage.getReplyId() == null) {
+			if (pointerMessage.getReplyId() == null || count > 20) {
 				looper = false;
 			};
-
-			//TODO: Add a break for length
 		};
 	};
-
+	console.log(3);
 	// query openai with the prompt
 	try {
 		let sendToAi = [
@@ -93,10 +98,12 @@ client.on("messageCreate", async message => {
 				if (tempMessage.getUser() == client.user.id) {
 					bread = "assistant";
 				};
-
+console.log(i);
 				sendToAi.splice(1, 0, {role: bread, content: tempMessage.getMessage()});
 			};
 		};
+
+console.log(sendToAi);
 
 		const completion = await openai.createChatCompletion({
 			model: "gpt-3.5-turbo",

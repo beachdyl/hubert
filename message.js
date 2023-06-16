@@ -1,5 +1,5 @@
 class messageContainer {
-    constructor(user, time, messageID, replyID, message) {
+    constructor(user, time, messageId, replyId, message) {
         this.user = user;
         this.time = time;
         this.messageId = messageId;
@@ -7,20 +7,20 @@ class messageContainer {
         this.message = message;
     }
     getUser() {
-        return user;
+        return this.user;
     }
     getTime() {
-        return time;
+        return this.time;
     }
     getMessageId() {
-        return messageId;
+        return this.messageId;
     }
     getReplyId() {
-        return replyId;
+        return this.replyId;
     }
     getMessage() {
-        return message;
+        return this.message;
     }
 }
 
-export default {messageContainer};
+module.exports = {messageContainer};
