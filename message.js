@@ -23,4 +23,4 @@ class messageContainer {
     }
 }
 
-export default {messageContainer};
+module.exports = {messageContainer};

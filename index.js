@@ -1,11 +1,11 @@
 // Require the necessary discord.js classes
 const fs = require('fs');
-const { Client, Collection, Intents, MessageEmbed } = require('discord.js');
-const { token, clientId, devChannelId, openaiKey } = require('./config.json');
-const { errHandle } = require('@beachdyl/error_handler');
+const { Client, Intents, MessageEmbed } = require('discord.js');
+const { token, devChannelId, openaiKey } = require('./config.json');
+const { errHandle } = require('@beachdyl/errorHandler');
 
 // import message struct
-const { messageContainer } = require('message.js')
+const { messageContainer } = require('./message.js')
 
 // import openai integration data
 const { Configuration, OpenAIApi } = require("openai");
@@ -40,7 +40,7 @@ client.on("messageCreate", async message => {
 	};
 	if (message.system) return; // Ignore system messages
 	if (message.reference) { // Check if the message is a reply
-		if ((await message.channel.messages.fetch(message.reference.messageId)).author.id == clientId) {
+		if ((await message.channel.messages.fetch(message.reference.messageId)).author.id == client.user.id) {
 			replyToMe = true;
 			replyId = message.reference.messageId;
 		} else {
@@ -50,14 +50,15 @@ client.on("messageCreate", async message => {
 	};
 
 	messageContainerContainer.push(new messageContainer(message.author.id, message.timestamp, message.id, replyId, message.content));
-
 	// Find message history
 	if (replyToMe) {
 		let pointerMessage = messageContainerContainer[messageContainerContainer.length - 1];
 		let looper = true;
 		var messageCollection = new Array();
 		messageCollection.push(pointerMessage)
+		let count = 0;
 		while(looper) {
+			count++;
 			for (let i = 0; i < messageContainerContainer.length; i++) {
 				let testMessage = messageContainerContainer[i]
 				if (pointerMessage.getReplyId() == testMessage.getMessageId()) {
@@ -67,23 +68,18 @@ client.on("messageCreate", async message => {
 			};
 			
 			// If the next message in the chain has no reply, we break
-			if (pointerMessage.getReplyId() == null) {
+			if (pointerMessage.getReplyId() == null || count > 20) {
 				looper = false;
 			};
-
-			//TODO: Add a break for length
 		};
 	};
-
 	// query openai with the prompt
 	try {
 		let sendToAi = [
-			{role: "system", content: `You are a sociable chatbot named Hubert in a discord server named ${message.guild.name}. The description of the server, if one exists, is here: "${message.guild.description}". Don't state the description directly, but keep it in mind when interacting. Respond concisely. If a message seems to be lacking context, remind users that they need to reply directly to your messages in order for you to have context into the conversation.`},
-			{role: "user", content: message.content}
+			{role: "system", content: `You are a sociable chatbot named Hubert in a discord server named ${message.guild.name}. The description of the server, if one exists, is here: "${message.guild.description}". Don't state the description directly, but keep it in mind when interacting. Respond concisely. If a message seems to be lacking context, remind users that they need to reply directly to your messages in order for you to have context into the conversation.`}
 		];
-		if (replyToMe) { // add a bit of context if the user is replying to the bot
-			//sendToAi.splice(1, 0, {role: "assistant", content: (await message.channel.messages.fetch(message.reference.messageId)).content}); 
-			//sendToAi.splice(1, 0, {role: "user", content: (await message.channel.messages.fetch((await message.channel.messages.fetch(message.reference.messageId)).reference.messageId)).content}); 
+		if (replyToMe) { 
+
 			
 			// Add context from the context collector
 			for (let i = 0; i < messageCollection.length; i++) {
@@ -93,8 +89,13 @@ client.on("messageCreate", async message => {
 				if (tempMessage.getUser() == client.user.id) {
 					bread = "assistant";
 				};
-
 				sendToAi.splice(1, 0, {role: bread, content: tempMessage.getMessage()});
+			};
+
+			// if reply is not in memory, get content directly
+			if (messageContainerContainer.length < 2) {
+				sendToAi.splice(1, 0, {role: "assistant", content: (await message.channel.messages.fetch(message.reference.messageId)).content}); 
+				sendToAi.splice(1, 0, {role: "user", content: (await message.channel.messages.fetch((await message.channel.messages.fetch(message.reference.messageId)).reference.messageId)).content}); 
 			};
 		};
 
