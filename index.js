@@ -2,7 +2,7 @@
 const fs = require('fs');
 const { Client, Intents, MessageEmbed } = require('discord.js');
 const { token, devChannelId, openaiKey } = require('./config.json');
-const { errHandle } = require('@beachdyl/errorHandler');
+const { errHandle } = require('../error_handler/errorHandler');
 
 // import message struct
 const { messageContainer } = require('./message.js')
