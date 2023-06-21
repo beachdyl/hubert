@@ -2,7 +2,7 @@
 const fs = require('fs');
 const { Client, Intents, MessageEmbed } = require('discord.js');
 const { token, devChannelId, openaiKey } = require('./config.json');
-const { errHandle } = require('@beachdyl/errorHandler');
+const { errHandle } = require('../error_handler/errorHandler');
 
 // import message struct
 const { messageContainer } = require('./message.js')
@@ -96,7 +96,9 @@ client.on("messageCreate", async message => {
 			if (messageContainerContainer.length < 2) {
 				sendToAi.splice(1, 0, {role: "assistant", content: (await message.channel.messages.fetch(message.reference.messageId)).content}); 
 				sendToAi.splice(1, 0, {role: "user", content: (await message.channel.messages.fetch((await message.channel.messages.fetch(message.reference.messageId)).reference.messageId)).content}); 
-			};
+			}
+		} else {
+			sendToAi.splice(1, 0, {role: "user", content: message.content});
 		};
 
 		const completion = await openai.createChatCompletion({
