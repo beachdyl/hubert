@@ -1,5 +1,6 @@
 
 const { SlashCommandBuilder } = require('@discordjs/builders');
+const fs = require('fs');
 const { openaiKey } = require('../config.json');
 const { Configuration, OpenAIApi } = require("openai");
 const configuration = new Configuration({
@@ -16,20 +17,26 @@ module.exports = {
             .setRequired(true)
             .setDescription('The message you want set')),
     async execute(interaction) {
-        global.systemMessage = interaction.options.getString('system_message');
+        systemMessage = interaction.options.getString('system_message');
+        let file = interaction.guildId;
+        try {
+            fs.writeFileSync(`./servers/${file}.txt`, systemMessage)
+        } catch (err) {
+            throw (err);
+        };
 
         // This is very unnecessary but fun
         let sendToAi = [
-            {role: "system", content: global.systemMessage}
+            {role: "system", content: systemMessage},
+            {role: "user" , content: 'Tell me about yourself in 50 words or less'}
         ];
-        sendToAi.splice(1, 0, {role: "user" , content: 'Tell me about yourself in 50 words or less'});
 
         const completion = await openai.createChatCompletion({
 			model: "gpt-3.5-turbo",
 			messages: sendToAi,
 			max_tokens: 400,
 			temperature: 1.2,
-			user: interaction.member.id,
+			user: interaction.member.user.id,
 		});
 
         await interaction.reply(completion.data.choices[0].message.content);
