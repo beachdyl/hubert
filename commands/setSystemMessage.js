@@ -1,15 +1,22 @@
 
-const { SlashCommandBuilder } = require('discord.js');
+const { SlashCommandBuilder } = require('@discordjs/builders');
+const { openaiKey } = require('../config.json');
+const { Configuration, OpenAIApi } = require("openai");
+const configuration = new Configuration({
+    apiKey: openaiKey,
+});
+const openai = new OpenAIApi(configuration);
 
 module.exports = {
     data: new SlashCommandBuilder()
-        .setName('setSystemMessage')
+        .setName('set_system_message')
         .setDescription('Sets the system message which provides context to Hubert')
         .addStringOption(option =>
-            option.setName('system message')
-            .setRequired(true)),
+            option.setName('system_message')
+            .setRequired(true)
+            .setDescription('The message you want set')),
     async execute(interaction) {
-        global.systemMessage = interaction.options.getString('system message');
+        global.systemMessage = interaction.options.getString('system_message');
 
         // This is very unnecessary but fun
         let sendToAi = [
@@ -22,7 +29,7 @@ module.exports = {
 			messages: sendToAi,
 			max_tokens: 400,
 			temperature: 1.2,
-			user: message.author.id,
+			user: interaction.member.id,
 		});
 
         await interaction.reply(completion.data.choices[0].message.content);
