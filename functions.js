@@ -6,18 +6,22 @@ let isBanned =  function(userid) {
 	const regEx = new RegExp('\\b'+userid+'\\b', "i")
 	let result = [];
 
-	// Scan the file for the user
+	let exists = false;
 	try {
 		fs.accessSync('./files/Banned.txt');
-		return;
-	} catch {}
-	let file = fs.readFileSync('./files/Banned.txt', 'utf8');
-	let lines = file.split("\n");
-	lines.forEach(line => {
-		if (line && line.search(regEx) >= 0) {
-			result.push(line);
-		};
-	});
+		exists = true;
+	} catch {};
+
+	// Scan the file for the user
+	if (exists) {
+		let file = fs.readFileSync('./files/Banned.txt', 'utf8');
+		let lines = file.split("\n");
+		lines.forEach(line => {
+			if (line && line.search(regEx) >= 0) {
+				result.push(line);
+			};
+		});
+	};
 
 	if (result.length > 0) {
 		return true;
