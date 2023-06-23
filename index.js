@@ -112,12 +112,11 @@ client.on("messageCreate", async message => {
 			// Add context from the context collector
 			for (let i = 0; i < messageCollection.length; i++) {
 				let tempMessage = messageCollection[i];
-				// bread role
-				let bread = "user";
+				let roleName = "user";
 				if (tempMessage.getUser() == client.user.id) {
-					bread = "assistant";
+					roleName = "assistant";
 				};
-				sendToAi.splice(1, 0, {role: bread, content: tempMessage.getMessage()});
+				sendToAi.splice(1, 0, {role: roleName, content: tempMessage.getMessage()});
 			};
 
 			// if reply is not in memory, get content directly
