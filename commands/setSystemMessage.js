@@ -20,7 +20,7 @@ module.exports = {
         systemMessage = interaction.options.getString('system_message');
         let file = interaction.guildId;
         try {
-            fs.writeFileSync(`./servers/${file}.txt`, systemMessage)
+            fs.writeFileSync(`./files/servers/${file}.txt`, systemMessage)
         } catch (err) {
             throw (err);
         };

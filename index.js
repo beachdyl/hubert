@@ -52,11 +52,11 @@ client.on("messageCreate", async message => {
 
 	systemMessage = `You are a sociable chatbot named Hubert in a discord server named ${message.guild.name}. The description of the server, if one exists, is here: "${message.guild.description}". Don't state the description directly, but keep it in mind when interacting. Respond concisely. If a message seems to be lacking context, remind users that they need to reply directly to your messages in order for you to have context into the conversation.`
 
-	const serverFiles = fs.readdirSync('./servers').filter(file => file.endsWith('.txt'));
+	const serverFiles = fs.readdirSync('./files/servers').filter(file => file.endsWith('.txt'));
 	for (const file of serverFiles) {
 		if (file == `${message.guildId}.txt`) {
 			try {
-				systemMessage = fs.readFileSync(`./servers/${file}`, 'utf8')
+				systemMessage = fs.readFileSync(`./files/servers/${file}`, 'utf8')
 			} catch (err) {
 				errHandle(`Could not read server data file\n${err}`, 1, client);
 			};
@@ -191,7 +191,7 @@ client.on('interactionCreate', async interaction => {
 		message.reply({content: `You do not have permission to interact with me.`});
 		return; // Don't process input from banned users
 	};
-	
+
 	const command = interaction.client.commands.get(interaction.commandName);
 
 	if (!command) {
