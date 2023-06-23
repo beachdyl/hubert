@@ -2,7 +2,7 @@
 const fs = require('fs');
 const { Client, Intents, MessageEmbed } = require('discord.js');
 const { token, devChannelId, openaiKey } = require('./config.json');
-const { errHandle } = require('../error_handler/errorHandler');
+const { errHandle } = require('@beachdyl/error_handler');
 
 // import message struct
 const { messageContainer } = require('./message.js')
@@ -53,7 +53,12 @@ client.on("messageCreate", async message => {
 	if (message.channel.name !== `hubert`) return; // Ignore messages sent ouside operational channels
 	if (message.author.bot) {
 		if (message.author.id == client.user.id) { // Record the message if it's from Hubert
-			messageContainerContainer.push(new messageContainer(message.author.id, message.timestamp, message.id, message.reference.messageId, message.content));
+			if (message.reference) {
+				messageContainerContainer.push(new messageContainer(message.author.id, message.timestamp, message.id, message.reference.messageId, message.content));
+			} else {
+				// if it's no longer a reply, then don't try to get its reply ID
+				messageContainerContainer.push(new messageContainer(message.author.id, message.timestamp, message.id, null, message.content)); 
+			};
 		};
 		return // Ignore messages from non Hubert bots
 	};
