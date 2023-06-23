@@ -20,23 +20,35 @@ module.exports = {
             .setDescription('The message you want set')),
     async execute(interaction) {
 
-        systemMessage = `You are a sociable chatbot named Hubert in a discord server named ${message.guild.name}. The description of the server, if one exists, is here: "${message.guild.description}". Don't state the description directly, but keep it in mind when interacting. Respond concisely. If a message seems to be lacking context, remind users that they need to reply directly to your messages in order for you to have context into the conversation.`
+        systemMessage = 'n/a'
+        botName = 'n/a'
         
         if (interaction.options.getString('system_message')) {
             systemMessage = interaction.options.getString('system_message');
         }
 
-        else {}
-
         if (botName) {
             botName = interaction.options.getString('name');
         }
 
+        file = interaction.guildId;
+        try {
+            fs.writeFileSync(`./files/servers/${file}.txt`, `${botName} \n ${systemMessage}`)
+        } catch (err) {
+            throw(err);
+        };
+
         // This is very unnecessary but fun
         let sendToAi = [
-            {role: "system", content: `Your name is ${botName}, ${systemMessage}`},
+            {role: "system", content: `You are a sociable chatbot named ${botName} in a discord server named ${interaction.guild.name}. The description of the server, if one exists, is here: "${interaction.guild.description}". Don't state the description directly, but keep it in mind when interacting. Respond concisely. If a message seems to be lacking context, remind users that they need to reply directly to your messages in order for you to have context into the conversation.`},
             {role: "user" , content: 'Tell me about yourself in 50 words or less'}
         ];
+        if (systemMessage) {
+            sendToAi = [
+                {role: "system", content: `Your name is ${botName}, ${systemMessage}`},
+                {role: "user" , content: 'Tell me about yourself in 50 words or less'}
+            ];
+        };
 
         const completion = await openai.createChatCompletion({
             model: "gpt-3.5-turbo",
