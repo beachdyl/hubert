@@ -187,7 +187,7 @@ client.on("messageCreate", async message => {
 // Process slash command interactions
 client.on('interactionCreate', async interaction => {
 	if (!interaction.isCommand()) return;
-	if (func.isBanned(message.author.id)) {
+	if (func.isBanned(interaction.member.user.id)) {
 		message.reply({content: `You do not have permission to interact with me.`});
 		return; // Don't process input from banned users
 	};
