@@ -49,20 +49,7 @@ var messageContainerContainer = new Array();
 
 // Process text messages
 client.on("messageCreate", async message => {
-
-	systemMessage = `You are a sociable chatbot named Hubert in a discord server named ${message.guild.name}. The description of the server, if one exists, is here: "${message.guild.description}". Don't state the description directly, but keep it in mind when interacting. Respond concisely. If a message seems to be lacking context, remind users that they need to reply directly to your messages in order for you to have context into the conversation.`
-
-	const serverFiles = fs.readdirSync('./files/servers').filter(file => file.endsWith('.txt'));
-	for (const file of serverFiles) {
-		if (file == `${message.guildId}.txt`) {
-			try {
-				systemMessage = fs.readFileSync(`./files/servers/${file}`, 'utf8')
-			} catch (err) {
-				errHandle(`Could not read server data file\n${err}`, 1, client);
-			};
-		};
-	};
-
+	
 	let replyToMe = false;
 	let replyId = null;
 	if (!message.guild) return; // Ignore messages sent in DMs
@@ -93,7 +80,7 @@ client.on("messageCreate", async message => {
 			return; // If it is a reply, but not to the bot, then don't interact with it
 		};
 	};
-	
+
 	messageContainerContainer.push(new messageContainer(message.author.id, message.timestamp, message.id, replyId, message.content));
 	// Find message history
 	if (replyToMe) {
@@ -120,12 +107,38 @@ client.on("messageCreate", async message => {
 	};
 	// query openai with the prompt
 	try {
+		
+		// Set default parameters
+		botName = 'Hubert'
+		systemMessage = `You are in a discord server named ${message.guild.name}. The description of the server, if one exists, is here: "${message.guild.description}". Don't state the description directly, but keep it in mind when interacting. Respond concisely. If a message seems to be lacking context, remind users that they need to reply directly to your messages in order for you to have context into the conversation.`
+
+		// Search for a custom server config
+		const serverFiles = fs.readdirSync('./files/servers').filter(file => file.endsWith('.txt'));
+		for (const file of serverFiles) {
+			if (file == `${message.guildId}.txt`) {
+				try {
+					// Look in the config for a valid custom message
+					let temp = fs.readFileSync(`./files/servers/${file}`, 'utf8');
+					tempMessage = temp.slice(temp.indexOf('\n') + 1);
+					if (tempMessage != 'n/a') {
+						systemMessage = tempMessage;
+					}
+					//Look in the config for a valid custom name
+					tempName = temp.slice(0, temp.indexOf('\n'));
+					if (tempName != 'n/a') {
+						botName = tempName;
+					}
+				} catch (err) {
+					errHandle(`Could not read server data file\n${err}`, 1, client);
+				};
+			};
+		};
+
 		let sendToAi = [
-			{role: "system", content: global.systemMessage}
+			{role: "system", content: `You are a sociable character named ${botName}. ${systemMessage}. Respond concisely. If a message seems to be lacking context, remind users that they need to reply directly to your messages in order for you to have context into the conversation.`}
 		];
 		if (replyToMe) { 
 
-			
 			// Add context from the context collector
 			for (let i = 0; i < messageCollection.length; i++) {
 				let tempMessage = messageCollection[i];
@@ -194,7 +207,7 @@ client.on('interactionCreate', async interaction => {
 	}; 
 	if (interaction.channel.name !== `hubert`) return; // Ignore commands sent ouside operational channels
 	if (func.isBanned(interaction.member.user.id)) {
-		message.reply({ephemeral: true, content: `You do not have permission to interact with me.`});
+		interaction.reply({ephemeral: true, content: `You do not have permission to interact with me.`});
 		return; // Don't process input from banned users
 	};
 
