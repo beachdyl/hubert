@@ -62,7 +62,7 @@ client.on("messageCreate", async message => {
 			};
 		};
 	};
-
+	
 	let replyToMe = false;
 	let replyId = null;
 	if (message.channel.name !== `hubert`) return; // Ignore messages sent ouside operational channels
