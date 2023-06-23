@@ -1,6 +1,5 @@
 // Require the necessary files and modules
 const fs = require('fs');
-const prependFile = require('prepend-file');
 
 // Returns true if the user is banned from participating, otherwise false
 let isBanned =  function(userid) {
