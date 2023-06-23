@@ -10,12 +10,12 @@ module.exports = {
             .setRequired(true)),
     async execute(interaction) {
         global.systemMessage = interaction.options.getString('system message');
-        
+
         // This is very unnecessary but fun
         let sendToAi = [
             {role: "system", content: global.systemMessage}
         ];
-        sendToAi.splice(1, 0, {role: "user" , content: 'Tell me about yourself in 100 words or less'});
+        sendToAi.splice(1, 0, {role: "user" , content: 'Tell me about yourself in 50 words or less'});
 
         const completion = await openai.createChatCompletion({
 			model: "gpt-3.5-turbo",
