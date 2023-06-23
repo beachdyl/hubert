@@ -4,6 +4,7 @@ const path = require('node:path');
 const { Client, Intents, Collection, MessageEmbed } = require('discord.js');
 const { token, devChannelId, openaiKey } = require('./config.json');
 const { errHandle } = require('@beachdyl/error_handler');
+const func = require('./functions.js');
 
 // import message struct
 const { messageContainer } = require('./message.js')
@@ -65,6 +66,10 @@ client.on("messageCreate", async message => {
 	let replyToMe = false;
 	let replyId = null;
 	if (message.channel.name !== `hubert`) return; // Ignore messages sent ouside operational channels
+	if (func.isBanned(message.author.id)) {
+		message.reply({content: `You do not have permission to interact with me.`});
+		return; // Don't process input from banned users
+	};
 	if (message.author.bot) {
 		if (message.author.id == client.user.id) { // Record the message if it's from Hubert
 			if (message.reference) {
@@ -86,6 +91,7 @@ client.on("messageCreate", async message => {
 			return; // If it is a reply, but not to the bot, then don't interact with it
 		};
 	};
+	
 
 	messageContainerContainer.push(new messageContainer(message.author.id, message.timestamp, message.id, replyId, message.content));
 	// Find message history
@@ -181,7 +187,11 @@ client.on("messageCreate", async message => {
 // Process slash command interactions
 client.on('interactionCreate', async interaction => {
 	if (!interaction.isCommand()) return;
-
+	if (func.isBanned(message.author.id)) {
+		message.reply({content: `You do not have permission to interact with me.`});
+		return; // Don't process input from banned users
+	};
+	
 	const command = interaction.client.commands.get(interaction.commandName);
 
 	if (!command) {
