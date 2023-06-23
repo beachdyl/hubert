@@ -1,6 +1,7 @@
 // Require the necessary discord.js classes
 const fs = require('fs');
-const { Client, Intents, MessageEmbed } = require('discord.js');
+const path = require('node:path');
+const { Client, Intents, Collection, MessageEmbed } = require('discord.js');
 const { token, devChannelId, openaiKey } = require('./config.json');
 const { errHandle } = require('@beachdyl/error_handler');
 
@@ -25,10 +26,32 @@ const client = new Client({
 });
 client.options.failIfNotExists = false;
 
+// Register slash command
+client.commands = new Collection();
+const commandFiles = fs.readdirSync('./commands').filter(file => file.endsWith('.js'));
+
+try {
+	for (const file of commandFiles) {
+		const command = require(`./commands/${file}`);
+		client.commands.set(command.data.name, command);
+	}
+} catch (error) {
+	try {
+		errHandle(`Command registration of command named ${command.data.name}\n${error}`, 1, client);
+	} catch (error) {
+		errHandle(`Command registration of unknown command\n${error}`, 1, client);
+	}
+}
+
+// Init the struct to remember messages
 var messageContainerContainer = new Array();
 
 // Process text messages
 client.on("messageCreate", async message => {
+
+	// Init the default system message
+	global.systemMessage = `You are a sociable chatbot named Hubert in a discord server named ${message.guild.name}. The description of the server, if one exists, is here: "${message.guild.description}". Don't state the description directly, but keep it in mind when interacting. Respond concisely. If a message seems to be lacking context, remind users that they need to reply directly to your messages in order for you to have context into the conversation.`
+
 	let replyToMe = false;
 	let replyId = null;
 	if (message.channel.name !== `hubert`) return; // Ignore messages sent ouside operational channels
@@ -81,7 +104,7 @@ client.on("messageCreate", async message => {
 	// query openai with the prompt
 	try {
 		let sendToAi = [
-			{role: "system", content: `You are a sociable chatbot named Hubert in a discord server named ${message.guild.name}. The description of the server, if one exists, is here: "${message.guild.description}". Don't state the description directly, but keep it in mind when interacting. Respond concisely. If a message seems to be lacking context, remind users that they need to reply directly to your messages in order for you to have context into the conversation.`}
+			{role: "system", content: global.systemMessage}
 		];
 		if (replyToMe) { 
 
@@ -148,7 +171,24 @@ client.on("messageCreate", async message => {
 // Process slash command interactions
 client.on('interactionCreate', async interaction => {
 	if (!interaction.isCommand()) return;
-	errHandle(interaction, 1, client);
+
+	const command = interaction.client.commands.get(interaction.commandName);
+
+	if (!command) {
+		console.error(`No command matching ${interaction.commandName} was found.`);
+		return;
+	}
+
+	try {
+		await command.execute(interaction);
+	} catch (error) {
+		console.error(error);
+		if (interaction.replied || interaction.deferred) {
+			await interaction.followUp({ content: 'There was an error while executing this command!', ephemeral: true });
+		} else {
+			await interaction.reply({ content: 'There was an error while executing this command!', ephemeral: true });
+		}
+	}
 });
 
 // Process button interactions

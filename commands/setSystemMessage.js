@@ -1,0 +1,37 @@
+
+const { SlashCommandBuilder } = require('@discordjs/builders');
+const { openaiKey } = require('../config.json');
+const { Configuration, OpenAIApi } = require("openai");
+const configuration = new Configuration({
+    apiKey: openaiKey,
+});
+const openai = new OpenAIApi(configuration);
+
+module.exports = {
+    data: new SlashCommandBuilder()
+        .setName('set_system_message')
+        .setDescription('Sets the system message which provides context to Hubert')
+        .addStringOption(option =>
+            option.setName('system_message')
+            .setRequired(true)
+            .setDescription('The message you want set')),
+    async execute(interaction) {
+        global.systemMessage = interaction.options.getString('system_message');
+
+        // This is very unnecessary but fun
+        let sendToAi = [
+            {role: "system", content: global.systemMessage}
+        ];
+        sendToAi.splice(1, 0, {role: "user" , content: 'Tell me about yourself in 50 words or less'});
+
+        const completion = await openai.createChatCompletion({
+			model: "gpt-3.5-turbo",
+			messages: sendToAi,
+			max_tokens: 400,
+			temperature: 1.2,
+			user: interaction.member.id,
+		});
+
+        await interaction.reply(completion.data.choices[0].message.content);
+    },
+};
