@@ -108,7 +108,7 @@ client.on("messageCreate", async message => {
 		
 		// Set default parameters
 		botName = 'Hubert'
-		systemMessage = `You are in a discord server named ${message.guild.name}. The description of the server, if one exists, is here: "${message.guild.description}". Don't state the description directly, but keep it in mind when interacting. Respond concisely. If a message seems to be lacking context, remind users that they need to reply directly to your messages in order for you to have context into the conversation.`
+		systemMessage = `You are in a discord server named ${message.guild.name}. The description of the server, if one exists, is here: "${message.guild.description}". Don't state the description directly, but keep it in mind when interacting. If a message seems to be lacking context, remind users that they need to reply directly to your messages in order for you to have context into the conversation.`
 
 		// Search for a custom server config
 		const serverFiles = fs.readdirSync('./files/servers').filter(file => file.endsWith('.txt'));

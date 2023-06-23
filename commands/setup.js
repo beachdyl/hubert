@@ -46,7 +46,7 @@ module.exports = {
         if (interaction.options.getString('system_message')) {
             systemMessage = interaction.options.getString('system_message');
         };
-        if (botName) {
+        if (interaction.options.getString('name')) {
             botName = interaction.options.getString('name');
             interaction.guild.members.cache.get(clientId).setNickname(botName);
         };
