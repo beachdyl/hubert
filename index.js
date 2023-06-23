@@ -65,9 +65,10 @@ client.on("messageCreate", async message => {
 
 	let replyToMe = false;
 	let replyId = null;
+	if (!message.guild) return; // Ignore messages sent in DMs
 	if (message.channel.name !== `hubert`) return; // Ignore messages sent ouside operational channels
 	if (func.isBanned(message.author.id)) {
-		message.reply({content: `You do not have permission to interact with me.`});
+		message.reply({ephemeral: true, content: `You do not have permission to interact with me.`});
 		return; // Don't process input from banned users
 	};
 	if (message.author.bot) {
@@ -81,6 +82,7 @@ client.on("messageCreate", async message => {
 		};
 		return // Ignore messages from non Hubert bots
 	};
+
 	if (message.system) return; // Ignore system messages
 	if (message.reference) { // Check if the message is a reply
 		if ((await message.channel.messages.fetch(message.reference.messageId)).author.id == client.user.id) {
@@ -92,7 +94,6 @@ client.on("messageCreate", async message => {
 		};
 	};
 	
-
 	messageContainerContainer.push(new messageContainer(message.author.id, message.timestamp, message.id, replyId, message.content));
 	// Find message history
 	if (replyToMe) {
@@ -187,8 +188,13 @@ client.on("messageCreate", async message => {
 // Process slash command interactions
 client.on('interactionCreate', async interaction => {
 	if (!interaction.isCommand()) return;
+	if (!interaction.guild) {
+		interaction.reply({ephemeral: true, content: `Commands are only usable in servers.`});
+		return; // Ignore commands sent in DMs
+	}; 
+	if (interaction.channel.name !== `hubert`) return; // Ignore commands sent ouside operational channels
 	if (func.isBanned(interaction.member.user.id)) {
-		message.reply({content: `You do not have permission to interact with me.`});
+		message.reply({ephemeral: true, content: `You do not have permission to interact with me.`});
 		return; // Don't process input from banned users
 	};
 
