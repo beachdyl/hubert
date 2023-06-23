@@ -7,6 +7,10 @@ let isBanned =  function(userid) {
 	let result = [];
 
 	// Scan the file for the user
+	try {
+		fs.accessSync('./files/Banned.txt');
+		return;
+	} catch {}
 	let file = fs.readFileSync('./files/Banned.txt', 'utf8');
 	let lines = file.split("\n");
 	lines.forEach(line => {
