@@ -1,6 +1,5 @@
 const fs = require('fs');
 const { SlashCommandBuilder } = require('@discordjs/builders');
-const func = require('../functions.js');
 const { adminUserId } = require('../config.json');
 
 module.exports = {
