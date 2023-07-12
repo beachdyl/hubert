@@ -6,6 +6,13 @@ class messageContainer {
         this.replyId = replyId;
         this.message = message;
     }
+    constructor() {
+        this.user = null;
+        this.time = null;
+        this.messageID = null;
+        this.replyId = null;
+        this.message = null;
+    }
     getUser() {
         return this.user;
     }
@@ -20,6 +27,21 @@ class messageContainer {
     }
     getMessage() {
         return this.message;
+    }
+    setUser(user) {
+        this.user = user;
+    }
+    setTime(time) {
+        this.time = time;
+    }
+    setMessageId(messageId) {
+        this.messageId = messageId;
+    }
+    setReplyId(replyId) {
+        this.replyId = replyId;
+    }
+    setMessage(message) {
+        this.message = message;
     }
 }
 

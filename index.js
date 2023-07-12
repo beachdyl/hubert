@@ -15,6 +15,7 @@ const configuration = new Configuration({
     apiKey: openaiKey,
 });
 const openai = new OpenAIApi(configuration);
+const {encode, decode} = require('gpt-3-encoder')
 
 // Try deleting old errorTemp.txt if it exists
 try {fs.unlinkSync('./errorTemp.txt');}
@@ -110,7 +111,7 @@ client.on("messageCreate", async message => {
 		
 		// Set default parameters
 		botName = 'Hubert'
-		systemMessage = `You are in a discord server named ${message.guild.name}. The description of the server, if one exists, is here: "${message.guild.description}". Don't state the description directly, but keep it in mind when interacting. If a message seems to be lacking context, remind users that they need to reply directly to your messages in order for you to have context into the conversation.`
+		systemMessage = `You are in a discord server named ${message.guild.name}. The description of the server, if one exists, is here: "${message.guild.description}". Don't state the description directly, but keep it in mind when interacting.`
 
 		// Search for a custom server config
 		const serverFiles = fs.readdirSync('./files/servers').filter(file => file.endsWith('.txt'));
@@ -157,6 +158,10 @@ client.on("messageCreate", async message => {
 		} else {
 			sendToAi.splice(1, 0, {role: "user", content: message.content});
 		};
+
+		for (let i = 0; i < sendToAi.length; i++) {
+			console.log(`${i} : ${sendToAi[i].content}`)
+		}
 
 		const completion = await openai.createChatCompletion({
 			model: "gpt-3.5-turbo",
