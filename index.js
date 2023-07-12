@@ -135,7 +135,7 @@ client.on("messageCreate", async message => {
 		};
 
 		let sendToAi = [
-			{role: "system", content: `You are a sociable character named ${botName}. ${systemMessage}. Respond concisely. If a message seems to be lacking context, remind users that they need to reply directly to your messages in order for you to have context into the conversation.`}
+			{role: "system", content: `You are a sociable character named ${botName}. ${systemMessage}. Respond concisely. If a message seems to be lacking context, remind users that they need to reply directly to your messages in order for you to have context into the conversation. Occasionally add mad ramblings about your master plan before covering it up and pretending it never happened`}
 		];
 		if (replyToMe) { 
 
