@@ -11,11 +11,13 @@ module.exports = {
 				.setName('user')
 				.setDescription('List a user by Discord ID. Do not use an @mention.')
 				.setRequired(true)
-		),
+		)
+		.setDefaultMemberPermissions(0)
+		.setDMPermission(false),
 	async execute(interaction) {
 		const userInput = interaction.options.getString('user');
 		if (`${interaction.user.id}` !== adminUserId) {
-			await interaction.reply({ephemeral: true, content: `You\'re not <@${adminUserId}>, you\'re <@${interaction.user.id}>! You can\'t do that.`, components: [] });
+			await interaction.reply({ephemeral: true, content: `You\'re not <@${adminUserId}>, you\'re <@${interaction.user.id}>! Only global bot admins can do that.`});
 			console.error(`<@${interaction.user.id}> (${interaction.user.name}) tried to run /prohibit.`);
 		} else {
 			fs.appendFileSync('./files/Banned.txt',`${userInput}\n`);
