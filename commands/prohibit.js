@@ -12,8 +12,9 @@ module.exports = {
 				.setDescription('List a user by Discord ID. Do not use an @mention.')
 				.setRequired(true)
 		)
-		.setDefaultMemberPermissions(0)
-		.setDMPermission(false),
+		//.setDefaultMemberPermissions(0)
+		//.setDMPermission(false)
+		,
 	async execute(interaction) {
 		const userInput = interaction.options.getString('user');
 		if (`${interaction.user.id}` !== adminUserId) {
