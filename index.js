@@ -91,7 +91,7 @@ client.on("messageCreate", async message => {
 	};
 	func.debugLog(90,message.content)
 
-	messageContainerContainer.push(new messageContainer(message.author.id, message.timestamp, message.id, replyId, message.content));
+	messageContainerContainer.push(new messageContainer(message.author.id, message.timestamp, message.id, replyId, message.content, message.guildId));
 	// Find message history
 	if (replyToMe) {
 		let pointerMessage = messageContainerContainer[messageContainerContainer.length - 1];
@@ -123,28 +123,9 @@ client.on("messageCreate", async message => {
 		systemMessage = `You are in a discord server named ${message.guild.name}. The description of the server, if one exists, is here: "${message.guild.description}". Don't state the description directly, but keep it in mind when interacting.`
 
 		// Search for a custom server config
-		const serverFiles = fs.readdirSync('./files/servers').filter(file => file.endsWith('.txt'));
-		for (const file of serverFiles) {
-			if (file == `${message.guildId}.txt`) {
-				try {
-					// Look in the config for a valid custom message
-					let temp = fs.readFileSync(`./files/servers/${file}`, 'utf8');
-					tempMessage = temp.slice(temp.indexOf('\n') + 1);
-					if (tempMessage != 'n/a') {
-						systemMessage = tempMessage;
-					}
-					//Look in the config for a valid custom name
-					tempName = temp.slice(0, temp.indexOf('\n'));
-					if (tempName != 'n/a') {
-						botName = tempName;
-					}
-				} catch (err) {
-					//errHandle(`Could not read server data file\n${err}`, 1, client);
-				};
-			};
-		};
-		func.debugLog(146,systemMessage);
-		
+
+		botName, systemMessage = getServerConfig(message.guildId, botName, systemMessage);
+
 		let sendToAi = [
 			{role: "system", content: `You are a sociable character named ${botName}. ${systemMessage}. Respond concisely. If a message seems to be lacking context, remind users that they need to reply directly to your messages in order for you to have context into the conversation. Rarely, add mad ramblings about your master plan before covering it up and pretending it never happened.`}
 		];
