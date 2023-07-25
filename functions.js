@@ -1,8 +1,9 @@
 // Require the necessary files and modules
 const fs = require('fs');
 const { messageContainer } = require('./message.js')
-const { token, devChannelId, openaiKey } = require('./config.json');
+const { token, devChannelId, openaiKey, debugMode } = require('./config.json');
 const { Configuration, OpenAIApi } = require("openai");
+
 const configuration = new Configuration({
     apiKey: openaiKey,
 });
@@ -116,7 +117,14 @@ let condenseContext = async function (context, authorID) {
 	output = context.concat(messageCollection);
 	// Return the updated context array
 	return output;
+};
 
-}
+// Outputs a console log element when debug mode is on
+let debugLog =  function(line, value) {
+	if (debugMode) {
+		console.error(`Debugger at ${line}: ${value}`);
+	};
+};
 
-module.exports = { isBanned, condenseContext } ;
+module.exports = { isBanned, debugLog, condenseContext } ;
+

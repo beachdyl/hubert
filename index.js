@@ -1,7 +1,7 @@
 // Require the necessary discord.js classes
 const fs = require('fs');
 const path = require('node:path');
-const { Client, Intents, Collection, MessageEmbed } = require('discord.js');
+const { Client, GatewayIntentBits, Partials, Collection, EmbedBuilder } = require('discord.js');
 const { token, devChannelId, openaiKey } = require('./config.json');
 const { errHandle } = require('@beachdyl/error_handler');
 const func = require('./functions.js');
@@ -23,8 +23,16 @@ catch (error) {}
 
 // Create a new client instance
 const client = new Client({
-	intents: [Intents.FLAGS.GUILDS, Intents.FLAGS.GUILD_MESSAGES, Intents.FLAGS.GUILD_MESSAGE_REACTIONS, Intents.FLAGS.DIRECT_MESSAGES, Intents.FLAGS.GUILD_MESSAGE_TYPING, Intents.FLAGS.GUILD_PRESENCES],
-	partials: ["CHANNEL"],
+	intents: [
+		GatewayIntentBits.Guilds,
+		GatewayIntentBits.GuildMessages,
+		GatewayIntentBits.MessageContent,
+		GatewayIntentBits.GuildMessageReactions,
+		GatewayIntentBits.DirectMessages,
+		GatewayIntentBits.GuildMessageTyping,
+		GatewayIntentBits.GuildPresences
+	],
+	partials: [Partials.Channel],
 });
 client.options.failIfNotExists = false;
 
@@ -81,6 +89,7 @@ client.on("messageCreate", async message => {
 			return; // If it is a reply, but not to the bot, then don't interact with it
 		};
 	};
+	func.debugLog(90,message.content)
 
 	messageContainerContainer.push(new messageContainer(message.author.id, message.timestamp, message.id, replyId, message.content));
 	// Find message history
@@ -134,10 +143,12 @@ client.on("messageCreate", async message => {
 				};
 			};
 		};
-
+		func.debugLog(1,systemMessage);
+		
 		let sendToAi = [
 			{role: "system", content: `You are a sociable character named ${botName}. ${systemMessage}. Respond concisely. If a message seems to be lacking context, remind users that they need to reply directly to your messages in order for you to have context into the conversation. Occasionally add mad ramblings about your master plan before covering it up and pretending it never happened`}
 		];
+		func.debugLog(2,message.content);
 		if (replyToMe) { 
 
 			// Add context from the context collector
@@ -158,6 +169,7 @@ client.on("messageCreate", async message => {
 		} else {
 			sendToAi.splice(1, 0, {role: "user", content: message.content});
 		};
+		func.debugLog(3,sendToAi[0].content); func.debugLog(4,sendToAi[1].content); try{func.debugLog(5,sendToAi[2].content)}catch{};
 
 		for (let i = 0; i < sendToAi.length; i++) {
 			console.log(`${i} : ${sendToAi[i].content}`)
@@ -253,10 +265,10 @@ client.on('ready', () => {
 	});
 
 	// Send a good morning embed
-	const readyEmbed = new MessageEmbed()
+	const readyEmbed = new EmbedBuilder()
 		.setColor('#00ff00')
 		.setTitle('Ready to rock and roll!')
-		.setAuthor('Hubert', 'https://i.ibb.co/BVKGkd9/gayliens.png', 'https://beachdyl.com')
+		.setAuthor({name: 'Hubert', iconURL: 'https://i.imgur.com/lP3AUoy.png', url: 'https://github.com/beachdyl/hubert'})
 		.setDescription('I was asleep, but I am no longer asleep! To make a long story short, ~~I put a whole bag of jellybeans~~ **good morning**!')
 		.setTimestamp();
 	client.channels.cache.get(devChannelId).send({embeds: [readyEmbed] });
