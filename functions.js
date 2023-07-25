@@ -1,9 +1,8 @@
 // Require the necessary files and modules
 const fs = require('fs');
 const { messageContainer } = require('./message.js')
-const { token, devChannelId, openaiKey, debugMode } = require('./config.json');
+const { token, devChannelId, openaiKey } = require('./config.json');
 const { Configuration, OpenAIApi } = require("openai");
-
 const configuration = new Configuration({
     apiKey: openaiKey,
 });
@@ -107,7 +106,7 @@ let condenseContext = async function (context, authorID) {
 		user: message.author.id,
 	});
 
-	console.log(`${message.author.username} <@${message.author.id}> in ${message.guild.name} had the following content compressed: "${message.content}". The following summary was returned: ${completion.data.usage.total_tokens} (${completion.data.usage.prompt_tokens}/${completion.data.usage.completion_tokens}) tokens: "${completion.data.choices[0].message.content}"`);
+	console.log(`@${summary.getUser()} had their conversation condensed into this summary: ${completion.data.usage.total_tokens} (${completion.data.usage.prompt_tokens}/${completion.data.usage.completion_tokens}) tokens: "${completion.data.choices[0].message.content}"`);
 
 	// Finish our summary message
 	summary.setMessage(completion.data.choices[0].message.content)
@@ -117,14 +116,7 @@ let condenseContext = async function (context, authorID) {
 	output = context.concat(messageCollection);
 	// Return the updated context array
 	return output;
-};
 
-// Outputs a console log element when debug mode is on
-let debugLog =  function(line, value) {
-	if (debugMode) {
-		console.error(`Debugger at ${line}: ${value}`);
-	};
-};
+}
 
-module.exports = { isBanned, debugLog, condenseContext } ;
-
+module.exports = { isBanned, condenseContext } ;
