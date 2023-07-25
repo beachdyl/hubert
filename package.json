@@ -17,7 +17,7 @@
   },
   "homepage": "https://github.com/beachdyl/hubert#readme",
   "dependencies": {
-    "@beachdyl/error_handler": "^2.0.0",
+    "@beachdyl/error_handler": "^2.0.3",
     "discord.js": "^14.11.0",
     "gpt-3-encoder": "^1.1.4",
     "openai": "^3.3.0"

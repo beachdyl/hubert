@@ -124,7 +124,7 @@ client.on("messageCreate", async message => {
 
 		// Search for a custom server config
 
-		botName, systemMessage = getServerConfig(message.guildId, botName, systemMessage);
+		botName, systemMessage = func.getServerConfig(message.guildId, botName, systemMessage);
 
 		let sendToAi = [
 			{role: "system", content: `You are a sociable character named ${botName}. ${systemMessage}. Respond concisely. If a message seems to be lacking context, remind users that they need to reply directly to your messages in order for you to have context into the conversation. Rarely, add mad ramblings about your master plan before covering it up and pretending it never happened.`}

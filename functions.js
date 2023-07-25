@@ -1,7 +1,7 @@
 // Require the necessary files and modules
 const fs = require('fs');
 const { messageContainer } = require('./message.js')
-const { token, devChannelId, openaiKey } = require('./config.json');
+const { openaiKey, debugMode } = require('./config.json');
 const { Configuration, OpenAIApi } = require("openai");
 
 const configuration = new Configuration({
