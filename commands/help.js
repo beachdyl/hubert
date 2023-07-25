@@ -4,7 +4,9 @@ const { MessageEmbed, MessageActionRow, MessageButton } = require('discord.js');
 module.exports = {
 	data: new SlashCommandBuilder()
 		.setName('help')
-		.setDescription('List available commands and information.'),
+		.setDescription('List available commands and information.')
+		.setDefaultMemberPermissions(2048)
+		.setDMPermission(false),
 	async execute(interaction) {
 		const theEmbed = new MessageEmbed()
 			.setColor('#532d8e')

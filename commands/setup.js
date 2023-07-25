@@ -17,7 +17,9 @@ module.exports = {
             .setDescription('The name Hubert will go by'))
         .addStringOption(option =>
             option.setName('system_message')
-            .setDescription('The message you want set')),
+            .setDescription('The message you want set'))
+        .setDefaultMemberPermissions(32)
+		.setDMPermission(false),
     async execute(interaction) {
 
         // Set default parameters
