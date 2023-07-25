@@ -5,9 +5,8 @@ module.exports = {
 	data: new SlashCommandBuilder()
 		.setName('greeting')
 		.setDescription('May I introduce myself?')
-		//.setDefaultMemberPermissions(2048)
-		//.setDMPermission(false)
-		,
+		.setDefaultMemberPermissions(2048)
+		.setDMPermission(false),
 	async execute(interaction) {
 		const theEmbed = new EmbedBuilder()
 			.setColor('#00ff00')

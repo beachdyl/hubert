@@ -5,9 +5,8 @@ module.exports = {
 	data: new SlashCommandBuilder()
 		.setName('help')
 		.setDescription('List available commands and information.')
-		//.setDefaultMemberPermissions(2048)
-		//.setDMPermission(false)
-		,
+		.setDefaultMemberPermissions(2048)
+		.setDMPermission(false),
 	async execute(interaction) {
 		const theEmbed = new EmbedBuilder()
 			.setColor('#532d8e')

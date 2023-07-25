@@ -18,9 +18,8 @@ module.exports = {
         .addStringOption(option =>
             option.setName('system_message')
             .setDescription('The message you want set'))
-        //.setDefaultMemberPermissions(32)
-		//.setDMPermission(false)
-        ,
+        .setDefaultMemberPermissions(32)
+		.setDMPermission(false),
     async execute(interaction) {
 
         // Set default parameters
