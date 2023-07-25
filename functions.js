@@ -3,6 +3,7 @@ const fs = require('fs');
 const { messageContainer } = require('./message.js')
 const { token, devChannelId, openaiKey, debugMode } = require('./config.json');
 const { Configuration, OpenAIApi } = require("openai");
+const {encode, decode} = require('gpt-3-encoder')
 
 const configuration = new Configuration({
     apiKey: openaiKey,
@@ -10,7 +11,7 @@ const configuration = new Configuration({
 const openai = new OpenAIApi(configuration);
 
 // Returns true if the user is banned from participating, otherwise false
-let isBanned =  function(userid) {
+let isBanned = function(userid) {
 	const regEx = new RegExp('\\b'+userid+'\\b', "i")
 	let result = [];
 
@@ -37,6 +38,12 @@ let isBanned =  function(userid) {
 	} else {
 		return false;
 	};
+};
+
+// Get token values for a string
+let tokenize = function(string) {
+	const encoded = encode(string);
+	return encoded.length;
 };
 
 // summarize old messages to allow the robot to have more context
@@ -127,5 +134,5 @@ let debugLog =  function(line, value) {
 	};
 };
 
-module.exports = { isBanned, debugLog, condenseContext } ;
+module.exports = { isBanned, tokenize, debugLog, condenseContext } ;
 

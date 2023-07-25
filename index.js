@@ -1,10 +1,11 @@
-// Require the necessary discord.js classes
+// Require the necessary classes and modules
 const fs = require('fs');
 const path = require('node:path');
 const { Client, GatewayIntentBits, Partials, Collection, EmbedBuilder } = require('discord.js');
 const { token, devChannelId, openaiKey } = require('./config.json');
 const { errHandle } = require('@beachdyl/error_handler');
 const func = require('./functions.js');
+const {encode, decode} = require('gpt-3-encoder');
 
 // import message struct
 const { messageContainer } = require('./message.js')
@@ -15,7 +16,6 @@ const configuration = new Configuration({
     apiKey: openaiKey,
 });
 const openai = new OpenAIApi(configuration);
-const {encode, decode} = require('gpt-3-encoder');
 
 // Try deleting old errorTemp.txt if it exists
 try {fs.unlinkSync('./errorTemp.txt');}
