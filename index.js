@@ -139,7 +139,7 @@ client.on("messageCreate", async message => {
 						botName = tempName;
 					}
 				} catch (err) {
-					errHandle(`Could not read server data file\n${err}`, 1, client);
+					//errHandle(`Could not read server data file\n${err}`, 1, client);
 				};
 			};
 		};
