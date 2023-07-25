@@ -1,10 +1,11 @@
 class messageContainer {
-    constructor(user, time, messageId, replyId, message) {
+    constructor(user, time, messageId, replyId, message, guildId) {
         this.user = user;
         this.time = time;
         this.messageId = messageId;
         this.replyId = replyId;
         this.message = message;
+        this.guildId = guildId;
     }
     getUser() {
         return this.user;
@@ -21,6 +22,9 @@ class messageContainer {
     getMessage() {
         return this.message;
     }
+    getGuildId() {
+        return this.guildId;
+    }
     setUser(user) {
         this.user = user;
     }
@@ -35,6 +39,9 @@ class messageContainer {
     }
     setMessage(message) {
         this.message = message;
+    }
+    setGuildId(guildId) {
+        this.guildId = guildId;
     }
 }
 

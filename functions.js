@@ -78,25 +78,32 @@ let condenseContext = async function (context, authorID) {
 	}
 
 	// Set up our summary message
-	let summary = new messageContainer(null, null, null, null, null);
+	let summary = new messageContainer(null, null, null, null, null, null);
 	summary.setUser(toBeCondensed[0].getUser());
 	summary.setTime(toBeCondensed[0].getTime());
 	summary.setMessageId(toBeCondensed[0].getMessageId());
+	summary.setGuildId(toBeCondensed[0].getGuildId());
 
 	// Set system message
 	let sendToAi = [
 		{role: "system", content: "You are a nameless bot which has been designed to summarize information from other bots to save space. Please summarize the following conversation in 200 words or less while keeping as much detail as possible. Insert no commentary of your own"}
 	];
 
-	// Send the information to the bot
+	// Find the name of the bot whose conversation is being summarized
+	botName = getServerConfig(summary.getGuildId(), "Hubert", null);
+
+	let sendToString = "";
+	// Form a string out of the conversation to send to bot
 	for (let i = 0; i < toBeCondensed.length; i++) {
 		let tempMessage = toBeCondensed[i];
 		let roleName = "user";
 		if (tempMessage.getUser() == client.user.id) {
-			roleName = "assistant";
+			roleName = `${botName}`;
 		};
-		sendToAi.splice(1, 0, {role: roleName, content: tempMessage.getMessage()});
+		sendToString.concat(`\r\n${roleName}:`, tempMessage.getMessage())
 	};
+
+	sendToAi.splice(1, 0, {role: "user", content: sendToString});
 
 	const completion = await openai.createChatCompletion({
 		model: "gpt-3.5-turbo",
@@ -106,7 +113,7 @@ let condenseContext = async function (context, authorID) {
 		user: message.author.id,
 	});
 
-	console.log(`@${summary.getUser()} had their conversation condensed into this summary: ${completion.data.usage.total_tokens} (${completion.data.usage.prompt_tokens}/${completion.data.usage.completion_tokens}) tokens: "${completion.data.choices[0].message.content}"`);
+	console.log(`@${summary.getUser()} in <${summary.getGuildId}> had their conversation condensed into this summary: ${completion.data.usage.total_tokens} (${completion.data.usage.prompt_tokens}/${completion.data.usage.completion_tokens}) tokens: "${completion.data.choices[0].message.content}"`);
 
 	// Finish our summary message
 	summary.setMessage(completion.data.choices[0].message.content)
@@ -119,4 +126,29 @@ let condenseContext = async function (context, authorID) {
 
 }
 
-module.exports = { isBanned, condenseContext } ;
+let getServerConfig = function(guildId, botName, systemMessage) {
+	const serverFiles = fs.readdirSync('./files/servers').filter(file => file.endsWith('.txt'));
+	for (const file of serverFiles) {
+		if (file == `${guildId}.txt`) {
+			try {
+				// Look in the config for a valid custom message
+				let temp = fs.readFileSync(`./files/servers/${file}`, 'utf8');
+				tempMessage = temp.slice(temp.indexOf('\n') + 1);
+				if (tempMessage != 'n/a') {
+					systemMessage = tempMessage;
+				}
+				//Look in the config for a valid custom name
+				tempName = temp.slice(0, temp.indexOf('\n'));
+				if (tempName != 'n/a') {
+					botName = tempName;
+				}
+			} catch (err) {
+
+			};
+		};
+	};
+
+	return (botName, systemMessage);
+}
+
+module.exports = { isBanned, condenseContext, getServerConfig} ;
