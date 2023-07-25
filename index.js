@@ -146,7 +146,7 @@ client.on("messageCreate", async message => {
 		func.debugLog(1,systemMessage);
 		
 		let sendToAi = [
-			{role: "system", content: `You are a sociable character named ${botName}. ${systemMessage}. Respond concisely. If a message seems to be lacking context, remind users that they need to reply directly to your messages in order for you to have context into the conversation. Occasionally add mad ramblings about your master plan before covering it up and pretending it never happened`}
+			{role: "system", content: `You are a sociable character named ${botName}. ${systemMessage}. Respond concisely. If a message seems to be lacking context, remind users that they need to reply directly to your messages in order for you to have context into the conversation. Rarely, add mad ramblings about your master plan before covering it up and pretending it never happened.`}
 		];
 		func.debugLog(2,message.content);
 		if (replyToMe) { 
