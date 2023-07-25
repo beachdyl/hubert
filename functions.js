@@ -79,7 +79,7 @@ let condenseContext = async function (context, authorID) {
 	}
 
 	// Set up our summary message
-	let summary = new messageContainer();
+	let summary = new messageContainer(null, null, null, null, null);
 	summary.setUser(toBeCondensed[0].getUser());
 	summary.setTime(toBeCondensed[0].getTime());
 	summary.setMessageId(toBeCondensed[0].getMessageId());

@@ -6,13 +6,6 @@ class messageContainer {
         this.replyId = replyId;
         this.message = message;
     }
-    constructor() {
-        this.user = null;
-        this.time = null;
-        this.messageID = null;
-        this.replyId = null;
-        this.message = null;
-    }
     getUser() {
         return this.user;
     }
