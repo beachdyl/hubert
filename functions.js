@@ -3,13 +3,14 @@ const fs = require('fs');
 const { messageContainer } = require('./message.js')
 const { token, devChannelId, openaiKey } = require('./config.json');
 const { Configuration, OpenAIApi } = require("openai");
+
 const configuration = new Configuration({
     apiKey: openaiKey,
 });
 const openai = new OpenAIApi(configuration);
 
 // Returns true if the user is banned from participating, otherwise false
-let isBanned =  function(userid) {
+let isBanned = function(userid) {
 	const regEx = new RegExp('\\b'+userid+'\\b', "i")
 	let result = [];
 
@@ -38,6 +39,20 @@ let isBanned =  function(userid) {
 	};
 };
 
+// Get token values for a string
+let tokenize = function(string) {
+	const encoded = encode(string);
+	return encoded.length;
+};
+
+// Outputs a console log element when debug mode is on
+let debugLog =  function(line, value) {
+	if (debugMode) {
+		console.error(`Debugger at ${line}: ${value}`);
+	};
+};
+
+// summarize old messages to allow the robot to have more context
 // Gotta be Async to let the gpt await command resolve
 let condenseContext = async function (context, authorID) {
 	
@@ -78,15 +93,16 @@ let condenseContext = async function (context, authorID) {
 	}
 
 	// Set up our summary message
+
 	let summary = new messageContainer(null, null, null, null, null, null);
-	summary.setUser(toBeCondensed[0].getUser());
+	summary.setUser("SUMMARY");
 	summary.setTime(toBeCondensed[0].getTime());
 	summary.setMessageId(toBeCondensed[0].getMessageId());
 	summary.setGuildId(toBeCondensed[0].getGuildId());
 
 	// Set system message
 	let sendToAi = [
-		{role: "system", content: "You are a nameless bot which has been designed to summarize information from other bots to save space. Please summarize the following conversation in 200 words or less while keeping as much detail as possible. Insert no commentary of your own"}
+		{role: "system", content: "Your job is to summarize a conversation so that future bots can understand what was discussed without reading the entire transcript. Please summarize the following conversation in 200 words or less while keeping as much detail as possible. Insert no commentary of your own."}
 	];
 
 	// Find the name of the bot whose conversation is being summarized
@@ -109,7 +125,7 @@ let condenseContext = async function (context, authorID) {
 		model: "gpt-3.5-turbo",
 		messages: sendToAi,
 		max_tokens: 400,
-		temperature: 1.2,
+		temperature: 1.1,
 		user: message.author.id,
 	});
 
@@ -149,6 +165,6 @@ let getServerConfig = function(guildId, botName, systemMessage) {
 	};
 
 	return (botName, systemMessage);
-}
+};
 
-module.exports = { isBanned, condenseContext, getServerConfig} ;
+module.exports = { isBanned, tokenize, debugLog, condenseContext, getServerConfig } ;

@@ -1,10 +1,11 @@
-// Require the necessary discord.js classes
+// Require the necessary classes and modules
 const fs = require('fs');
 const path = require('node:path');
 const { Client, GatewayIntentBits, Partials, Collection, EmbedBuilder } = require('discord.js');
 const { token, devChannelId, openaiKey } = require('./config.json');
 const { errHandle } = require('@beachdyl/error_handler');
 const func = require('./functions.js');
+const {encode, decode} = require('gpt-3-encoder');
 
 // import message struct
 const { messageContainer } = require('./message.js')
@@ -15,7 +16,6 @@ const configuration = new Configuration({
     apiKey: openaiKey,
 });
 const openai = new OpenAIApi(configuration);
-const {encode, decode} = require('gpt-3-encoder')
 
 // Try deleting old errorTemp.txt if it exists
 try {fs.unlinkSync('./errorTemp.txt');}
@@ -123,12 +123,13 @@ client.on("messageCreate", async message => {
 		systemMessage = `You are in a discord server named ${message.guild.name}. The description of the server, if one exists, is here: "${message.guild.description}". Don't state the description directly, but keep it in mind when interacting.`
 
 		// Search for a custom server config
+
 		botName, systemMessage = getServerConfig(message.guildId, botName, systemMessage);
-		
+
 		let sendToAi = [
-			{role: "system", content: `You are a sociable character named ${botName}. ${systemMessage}. Respond concisely. If a message seems to be lacking context, remind users that they need to reply directly to your messages in order for you to have context into the conversation. Occasionally add mad ramblings about your master plan before covering it up and pretending it never happened`}
+			{role: "system", content: `You are a sociable character named ${botName}. ${systemMessage}. Respond concisely. If a message seems to be lacking context, remind users that they need to reply directly to your messages in order for you to have context into the conversation. Rarely, add mad ramblings about your master plan before covering it up and pretending it never happened.`}
 		];
-		func.debugLog(2,message.content);
+		func.debugLog(151,message.content);
 		if (replyToMe) { 
 
 			// Add context from the context collector
@@ -149,10 +150,9 @@ client.on("messageCreate", async message => {
 		} else {
 			sendToAi.splice(1, 0, {role: "user", content: message.content});
 		};
-		func.debugLog(3,sendToAi[0].content); func.debugLog(4,sendToAi[1].content); try{func.debugLog(5,sendToAi[2].content)}catch{};
 
 		for (let i = 0; i < sendToAi.length; i++) {
-			console.log(`${i} : ${sendToAi[i].content}`)
+			func.debugLog(175, `${i}- ${sendToAi[i].role} "${sendToAi[i].content}"`)
 		}
 
 		const completion = await openai.createChatCompletion({

@@ -18,7 +18,7 @@ module.exports = {
             .setDescription('The name the robot will go by (default Hubert)'))
         .addStringOption(option =>
             option.setName('system_message')
-            .setDescription('A statement telling the robot what it\'s personality, job, and role is'))
+            .setDescription('A statement telling the robot what its personality, job, and role is'))
         .setDefaultMemberPermissions(32)
 		.setDMPermission(false),
     async execute(interaction) {
@@ -63,13 +63,13 @@ module.exports = {
 
         // Have the Ai write a message updating the user on their servers new status
         let sendToAi = [
-            {role: "system", content: `You are a sociable chatbot named ${botName} in a discord server named ${interaction.guild.name}. The description of the server, if one exists, is here: "${interaction.guild.description}". Don't state the description directly, but keep it in mind when interacting. Respond concisely. If a message seems to be lacking context, remind users that they need to reply directly to your messages in order for you to have context into the conversation.`},
-            {role: "user" , content: 'Tell me about yourself in 50 words or less'}
+            {role: "system", content: `You are a sociable character named ${botName} in a discord server named ${interaction.guild.name}. The description of the server, if one exists, is here: "${interaction.guild.description}". Don't state the description directly, but keep it in mind when interacting.`},
+            {role: "user" , content: 'Tell me about yourself in 50 words or less.'}
         ];
         if (systemMessage) {
             sendToAi = [
-                {role: "system", content: `Your name is ${botName}, ${systemMessage}`},
-                {role: "user" , content: 'Tell me about yourself in 50 words or less'}
+                {role: "system", content: `Your name is ${botName}. ${systemMessage}`},
+                {role: "user" , content: 'Tell me about yourself in 50 words or less.'}
             ];
         };
 
