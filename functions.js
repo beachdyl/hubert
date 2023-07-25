@@ -124,7 +124,7 @@ let condenseContext = async function (context, authorID) {
 	const completion = await openai.createChatCompletion({
 		model: "gpt-3.5-turbo",
 		messages: sendToAi,
-		max_tokens: 400,
+		max_tokens: 1000,
 		temperature: 1.1,
 		user: message.author.id,
 	});
