@@ -15,6 +15,7 @@ const configuration = new Configuration({
     apiKey: openaiKey,
 });
 const openai = new OpenAIApi(configuration);
+const {encode, decode} = require('gpt-3-encoder')
 
 // Try deleting old errorTemp.txt if it exists
 try {fs.unlinkSync('./errorTemp.txt');}
@@ -145,7 +146,7 @@ client.on("messageCreate", async message => {
 		func.debugLog(1,systemMessage);
 		
 		let sendToAi = [
-			{role: "system", content: `You are a sociable character named ${botName}. ${systemMessage}. Respond concisely. If a message seems to be lacking context, remind users that they need to reply directly to your messages in order for you to have context into the conversation.`}
+			{role: "system", content: `You are a sociable character named ${botName}. ${systemMessage}. Respond concisely. If a message seems to be lacking context, remind users that they need to reply directly to your messages in order for you to have context into the conversation. Occasionally add mad ramblings about your master plan before covering it up and pretending it never happened`}
 		];
 		func.debugLog(2,message.content);
 		if (replyToMe) { 
@@ -169,6 +170,10 @@ client.on("messageCreate", async message => {
 			sendToAi.splice(1, 0, {role: "user", content: message.content});
 		};
 		func.debugLog(3,sendToAi[0].content); func.debugLog(4,sendToAi[1].content); try{func.debugLog(5,sendToAi[2].content)}catch{};
+
+		for (let i = 0; i < sendToAi.length; i++) {
+			console.log(`${i} : ${sendToAi[i].content}`)
+		}
 
 		const completion = await openai.createChatCompletion({
 			model: "gpt-3.5-turbo",
