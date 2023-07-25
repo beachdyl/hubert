@@ -263,7 +263,7 @@ client.on('ready', () => {
 	const readyEmbed = new EmbedBuilder()
 		.setColor('#00ff00')
 		.setTitle('Ready to rock and roll!')
-		.setAuthor({name: 'Hubert', iconURL: 'https://i.ibb.co/BVKGkd9/gayliens.png', url: 'https://beachdyl.com'})
+		.setAuthor({name: 'Hubert', iconURL: 'https://i.imgur.com/lP3AUoy.png', url: 'https://github.com/beachdyl/hubert'})
 		.setDescription('I was asleep, but I am no longer asleep! To make a long story short, ~~I put a whole bag of jellybeans~~ **good morning**!')
 		.setTimestamp();
 	client.channels.cache.get(devChannelId).send({embeds: [readyEmbed] });

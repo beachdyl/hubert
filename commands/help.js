@@ -11,7 +11,7 @@ module.exports = {
 		const theEmbed = new EmbedBuilder()
 			.setColor('#532d8e')
 			.setTitle('\"Hubert, help me!\"')
-			.setAuthor({name:'Hubert', iconURL:'https://i.ibb.co/BVKGkd9/gayliens.png', url:'https://beachdyl.com'})
+			.setAuthor({name:'Hubert', iconURL: 'https://i.imgur.com/lP3AUoy.png', url: 'https://github.com/beachdyl/hubert'})
 			.setDescription('Sure thing! Here are the commands I\'m prepared to handle at the moment. Remember, all commands start with a slash (/) typed straight into the message box.')
 			.addFields(
 				{name: '/placeholder', value: 'Gets you a list.', inline: false},

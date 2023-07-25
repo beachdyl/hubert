@@ -11,7 +11,7 @@ module.exports = {
 		const theEmbed = new EmbedBuilder()
 			.setColor('#00ff00')
 			.setTitle('Hey there, I\'m Hubert!')
-			.setAuthor({name:'Hubert', iconURL:'https://i.ibb.co/BVKGkd9/gayliens.png', url:'https://beachdyl.com'})
+			.setAuthor({name:'Hubert', iconURL: 'https://i.imgur.com/lP3AUoy.png', url: 'https://github.com/beachdyl/hubert'})
 			.setDescription(`Hello there! I'm Hubert, your friendly neighborhood chatbot. I'm here to make your experience in this discord server all the more enjoyable by chatting with you and keeping the conversations flowing. Don't hesitate to strike up a chat, ask a question or just say hi. Let's keep the interactions going!`)
 			.addFields(
 				{name: 'Developer', value: 'This bot is being developed by <@200316185445793792>.', inline: true},
