@@ -15,7 +15,7 @@ const configuration = new Configuration({
     apiKey: openaiKey,
 });
 const openai = new OpenAIApi(configuration);
-const {encode, decode} = require('gpt-3-encoder')
+const {encode, decode} = require('gpt-3-encoder');
 
 // Try deleting old errorTemp.txt if it exists
 try {fs.unlinkSync('./errorTemp.txt');}
