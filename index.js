@@ -1,7 +1,7 @@
 // Require the necessary discord.js classes
 const fs = require('fs');
 const path = require('node:path');
-const { Client, Intents, Collection, MessageEmbed } = require('discord.js');
+const { Client, GatewayIntentBits, Partials, Collection, EmbedBuilder } = require('discord.js');
 const { token, devChannelId, openaiKey } = require('./config.json');
 const { errHandle } = require('@beachdyl/error_handler');
 const func = require('./functions.js');
@@ -22,8 +22,15 @@ catch (error) {}
 
 // Create a new client instance
 const client = new Client({
-	intents: [Intents.FLAGS.GUILDS, Intents.FLAGS.GUILD_MESSAGES, Intents.FLAGS.GUILD_MESSAGE_REACTIONS, Intents.FLAGS.DIRECT_MESSAGES, Intents.FLAGS.GUILD_MESSAGE_TYPING, Intents.FLAGS.GUILD_PRESENCES],
-	partials: ["CHANNEL"],
+	intents: [
+		GatewayIntentBits.Guilds,
+		GatewayIntentBits.GuildMessages,
+		GatewayIntentBits.GuildMessageReactions,
+		GatewayIntentBits.DirectMessages,
+		GatewayIntentBits.GuildMessageTyping,
+		GatewayIntentBits.GuildPresences
+	],
+	partials: [Partials.Channel],
 });
 client.options.failIfNotExists = false;
 
@@ -248,10 +255,10 @@ client.on('ready', () => {
 	});
 
 	// Send a good morning embed
-	const readyEmbed = new MessageEmbed()
+	const readyEmbed = new EmbedBuilder()
 		.setColor('#00ff00')
 		.setTitle('Ready to rock and roll!')
-		.setAuthor('Hubert', 'https://i.ibb.co/BVKGkd9/gayliens.png', 'https://beachdyl.com')
+		.setAuthor({name: 'Hubert', iconURL: 'https://i.ibb.co/BVKGkd9/gayliens.png', url: 'https://beachdyl.com'})
 		.setDescription('I was asleep, but I am no longer asleep! To make a long story short, ~~I put a whole bag of jellybeans~~ **good morning**!')
 		.setTimestamp();
 	client.channels.cache.get(devChannelId).send({embeds: [readyEmbed] });
