@@ -1,5 +1,6 @@
 // Require the necessary files and modules
 const fs = require('fs');
+const { debugMode } = require('./config.json');
 
 // Returns true if the user is banned from participating, otherwise false
 let isBanned =  function(userid) {
@@ -31,4 +32,11 @@ let isBanned =  function(userid) {
 	};
 };
 
-module.exports = { isBanned } ;
+// Outputs a console log element when debug mode is on
+let debugLog =  function(line, value) {
+	if (debugMode) {
+		console.error(`Debugger at ${line}: ${value}`);
+	};
+};
+
+module.exports = { isBanned, debugLog } ;

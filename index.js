@@ -25,6 +25,7 @@ const client = new Client({
 	intents: [
 		GatewayIntentBits.Guilds,
 		GatewayIntentBits.GuildMessages,
+		GatewayIntentBits.MessageContent,
 		GatewayIntentBits.GuildMessageReactions,
 		GatewayIntentBits.DirectMessages,
 		GatewayIntentBits.GuildMessageTyping,
@@ -87,6 +88,7 @@ client.on("messageCreate", async message => {
 			return; // If it is a reply, but not to the bot, then don't interact with it
 		};
 	};
+	func.debugLog(90,message.content)
 
 	messageContainerContainer.push(new messageContainer(message.author.id, message.timestamp, message.id, replyId, message.content));
 	// Find message history
@@ -117,7 +119,7 @@ client.on("messageCreate", async message => {
 		
 		// Set default parameters
 		botName = 'Hubert'
-		systemMessage = `You are in a discord server named ${message.guild.name}. The description of the server, if one exists, is here: "${message.guild.description}". Don't state the description directly, but keep it in mind when interacting. Respond concisely. If a message seems to be lacking context, remind users that they need to reply directly to your messages in order for you to have context into the conversation.`
+		systemMessage = `You are in a discord server named ${message.guild.name}. The description of the server, if one exists, is here: "${message.guild.description}". Don't state the description directly, but keep it in mind when interacting.`
 
 		// Search for a custom server config
 		const serverFiles = fs.readdirSync('./files/servers').filter(file => file.endsWith('.txt'));
@@ -140,10 +142,12 @@ client.on("messageCreate", async message => {
 				};
 			};
 		};
-
+		func.debugLog(1,systemMessage);
+		
 		let sendToAi = [
 			{role: "system", content: `You are a sociable character named ${botName}. ${systemMessage}. Respond concisely. If a message seems to be lacking context, remind users that they need to reply directly to your messages in order for you to have context into the conversation.`}
 		];
+		func.debugLog(2,message.content);
 		if (replyToMe) { 
 
 			// Add context from the context collector
@@ -164,6 +168,7 @@ client.on("messageCreate", async message => {
 		} else {
 			sendToAi.splice(1, 0, {role: "user", content: message.content});
 		};
+		func.debugLog(3,sendToAi[0].content); func.debugLog(4,sendToAi[1].content); try{func.debugLog(5,sendToAi[2].content)}catch{};
 
 		const completion = await openai.createChatCompletion({
 			model: "gpt-3.5-turbo",
