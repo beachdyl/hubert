@@ -39,6 +39,7 @@ let isBanned =  function(userid) {
 	};
 };
 
+// summarize old messages to allow the robot to have more context
 // Gotta be Async to let the gpt await command resolve
 let condenseContext = async function (context, authorID) {
 	
@@ -80,13 +81,13 @@ let condenseContext = async function (context, authorID) {
 
 	// Set up our summary message
 	let summary = new messageContainer(null, null, null, null, null);
-	summary.setUser(toBeCondensed[0].getUser());
+	summary.setUser("SUMMARY");
 	summary.setTime(toBeCondensed[0].getTime());
 	summary.setMessageId(toBeCondensed[0].getMessageId());
 
 	// Set system message
 	let sendToAi = [
-		{role: "system", content: "You are a nameless bot which has been designed to summarize information from other bots to save space. Please summarize the following conversation in 200 words or less while keeping as much detail as possible. Insert no commentary of your own"}
+		{role: "system", content: "Your job is to summarize a conversation so that future bots can understand what was discussed without reading the entire transcript. Please summarize the following conversation in 200 words or less while keeping as much detail as possible. Insert no commentary of your own."}
 	];
 
 	// Send the information to the bot
@@ -103,7 +104,7 @@ let condenseContext = async function (context, authorID) {
 		model: "gpt-3.5-turbo",
 		messages: sendToAi,
 		max_tokens: 400,
-		temperature: 1.2,
+		temperature: 1.1,
 		user: message.author.id,
 	});
 

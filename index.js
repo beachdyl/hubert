@@ -171,7 +171,7 @@ client.on("messageCreate", async message => {
 		};
 
 		for (let i = 0; i < sendToAi.length; i++) {
-			func.debugLog(175, `${i}- ${sendToAi[i].content}`)
+			func.debugLog(175, `${i}- ${sendToAi[i].role} "${sendToAi[i].content}"`)
 		}
 
 		const completion = await openai.createChatCompletion({
