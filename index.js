@@ -158,7 +158,7 @@ client.on("messageCreate", async message => {
 		const completion = await openai.createChatCompletion({
 			model: "gpt-3.5-turbo",
 			messages: sendToAi,
-			max_tokens: 1000,
+			max_tokens: 500,
 			temperature: 1.2,
 			user: message.author.id,
 		});
