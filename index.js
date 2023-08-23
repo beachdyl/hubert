@@ -2,7 +2,7 @@
 const fs = require('fs');
 const path = require('node:path');
 const { Client, GatewayIntentBits, Partials, Collection, EmbedBuilder } = require('discord.js');
-const { token, devChannelId, openaiKey } = require('./config.json');
+const { token, devChannelId, openaiKey, debugMode } = require('./config.json');
 const { errHandle } = require('@beachdyl/error_handler');
 const func = require('./functions.js');
 
@@ -88,7 +88,7 @@ client.on("messageCreate", async message => {
 			return; // If it is a reply, but not to the bot, then don't interact with it
 		};
 	};
-	func.debugLog(90,message.content)
+	func.debugLog(90,message.content);
 
 	messageContainerContainer.push(new messageContainer(message.author.id, message.timestamp, message.id, replyId, message.content, message.guildId));
 	// Find message history
@@ -162,21 +162,32 @@ client.on("messageCreate", async message => {
 			user: message.author.id,
 		});
 
+		// if the last prompt was getting large, condense it
+		if (completion.data.usage.prompt_tokens > 199) {
+			messageContainerContainer = func.condenseContext(messageContainerContainer, message.author.id);
+		};
+
 		console.log(`${message.author.username} <@${message.author.id}> in ${message.guild.name} asked: "${message.content}" and Hubert responded with ${completion.data.usage.total_tokens} (${completion.data.usage.prompt_tokens}/${completion.data.usage.completion_tokens}) tokens: "${completion.data.choices[0].message.content}"`);
-		message.channel.sendTyping();
 		client.user.setPresence({status: 'online'});
 		try{
-			setTimeout(() => {
+			// random message response delay if not debug mode
+			if (debugMode) {
 				message.reply({content: completion.data.choices[0].message.content});
-			},
-			Math.floor(Math.random() * (8500 - 4000 + 1)) + 4000); // random message response delay
+			} else {
+				message.channel.sendTyping();
+				setTimeout(() => {
+					message.reply({content: completion.data.choices[0].message.content});
+				},
+					Math.floor(Math.random() * (8500 - 4000 + 1)) + 4000); 
+			}
+			
 		} catch (error) {
 			errHandle(`Reply to prompt\n${error}`, 1, client);
 		};
 	} catch (error) {
 		if (error.response) {
 			if (error.response.status == 429) {
-				try{
+				try {
 					client.user.setPresence({status: 'idle'});
 					message.react(`❌`);
 					client.users.cache.get(message.author.id).send(`Sorry! I can only handle so many messages per minute. Try again in a minute.`);
@@ -200,7 +211,7 @@ client.on('interactionCreate', async interaction => {
 	if (!interaction.guild) {
 		interaction.reply({ephemeral: true, content: `Commands are only usable in servers.`});
 		return; // Ignore commands sent in DMs
-	}; 
+	};
 	if (interaction.channel.name !== `hubert`) return; // Ignore commands sent ouside operational channels
 	if (func.isBanned(interaction.member.user.id)) {
 		interaction.reply({ephemeral: true, content: `You do not have permission to interact with me.`});
