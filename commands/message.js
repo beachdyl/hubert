@@ -2,6 +2,7 @@ const fs = require('fs');
 const { SlashCommandBuilder } = require('@discordjs/builders');
 const { openaiKey, clientId } = require('../config.json');
 const { Configuration, OpenAIApi } = require("openai");
+const func = require('../functions.js');
 
 const configuration = new Configuration({
     apiKey: openaiKey,
@@ -19,7 +20,7 @@ module.exports = {
 		.setDMPermission(false),
     async execute(interaction) {
 
-        botName, systemMessage = getServerConfig(interaction.guildId, "Hubert", null);
+        let botName, systemMessage = await func.getServerConfig(interaction.guildId, "Hubert", null);
 	
 		let sendToAi = [
 			{role: "system", content: systemMessage}
