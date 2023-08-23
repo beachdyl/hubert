@@ -116,30 +116,30 @@ let condenseContext = async function (context, authorId) {
 	];
 
 	// Find the name of the bot whose conversation is being summarized
-	botName = getServerConfig(summary.getGuildId(), "Hubert", null);
+	botName, systemMessage = getServerConfig(summary.getGuildId(), "Hubert", null);
 
 	let sendToString = "";
 	// Form a string out of the conversation to send to bot
-	for (let i = 0; i < toBeCondensed.length; i++) {
-		let tempMessage = toBeCondensed[i];
-		let roleName = "user";
-		if (tempMessage.getUser() == clientId) {
-			roleName = `${botName}`;
-		};
-		sendToString.concat(`\r\n${roleName}:`, tempMessage.getMessage())
+    for (let i = toBeCondensed.length - 1; i >= 0; i--) {
+        let tempMessage = toBeCondensed[i];
+        let roleName = "user";
+        if (tempMessage.getUser() == clientId) {
+            roleName = `${botName}`;
+        };
+		sendToString = `${sendToString}
+		${roleName}: ${tempMessage.getMessage()}`;
 	};
-
 	sendToAi.splice(1, 0, {role: "user", content: sendToString});
 
 	const completion = await openai.createChatCompletion({
 		model: "gpt-3.5-turbo",
 		messages: sendToAi,
-		max_tokens: 1000,
-		temperature: 1.1,
+		max_tokens: 400,
+		temperature: 1,
 		user: authorId,
 	});
 
-	console.log(`<@${summary.getUser()}> in server ${summary.getGuildId()} had their conversation condensed into this summary: ${completion.data.usage.total_tokens} (${completion.data.usage.prompt_tokens}/${completion.data.usage.completion_tokens}) tokens: "${completion.data.choices[0].message.content}"`);
+	console.log(`<@${authorId}> in server ${summary.getGuildId()} had their conversation summarized using ${completion.data.usage.total_tokens} (${completion.data.usage.prompt_tokens}/${completion.data.usage.completion_tokens}) tokens: "${completion.data.choices[0].message.content}"`);
 	// Finish our summary message
 	summary.setMessage(completion.data.choices[0].message.content)
 	// Add it back to the thread

@@ -184,7 +184,7 @@ client.on("messageCreate", async message => {
 		};
 
 		// if the last prompt was getting large, condense it
-		if (completion.data.usage.prompt_tokens > 199) {
+		if (completion.data.usage.prompt_tokens > 1000) {
 			messageContainerContainer = await func.condenseContext(messageContainerContainer, message.author.id);
 		};
 	} catch (error) {
