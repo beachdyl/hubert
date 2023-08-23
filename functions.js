@@ -1,7 +1,7 @@
 // Require the necessary files and modules
 const fs = require('fs');
 const { messageContainer } = require('./message.js')
-const { openaiKey, debugMode } = require('./config.json');
+const { clientId, openaiKey, debugMode } = require('./config.json');
 const { Configuration, OpenAIApi } = require("openai");
 const {encode, decode} = require('gpt-3-encoder');
 
@@ -55,13 +55,15 @@ let debugLog =  function(line, value) {
 
 // summarize old messages to allow the robot to have more context
 // Gotta be Async to let the gpt await command resolve
-let condenseContext = async function (context, authorID) {
-	
+let condenseContext = async function (context, authorId) {
+
 	// Find the last message sent by the author of the thread we want to condense
 	let pointerMessage = 0;
 	for (let i = context.length - 1; i >= 0; i--) {
-		if (context[i].user = authorID) {
-			pointerMessage = context[i];
+		if (context[i].user = authorId) {
+			pointerMessage = context.splice(i,1);
+			pointerMessage = pointerMessage[0];
+			i = -1;
 		};
 	};
 
@@ -89,21 +91,28 @@ let condenseContext = async function (context, authorID) {
 
 	// Pull out the parts of the thread we are going to condense
 	var toBeCondensed = new Array();
-	for (let i = (messageCollection.length / 2) - 1; i < messageCollection.length; i++) {
-		toBeCondensed.push(messageCollection.splice(i, 0));
-	};
+	let collectionLength = messageCollection.length;
+    let numIterations = Math.floor((collectionLength / 2) - 1);
+    if (messageCollection.length != 1) {
+        for (let i = numIterations; i < collectionLength; i++) {
+			toBeCondensed.push(messageCollection.splice(numIterations, 1)[0]);
+        };
+    } else {
+        toBeCondensed.push(messageCollection[0]);
+    };
 
 	// Set up our summary message
 
 	let summary = new messageContainer(null, null, null, null, null, null);
-	summary.setUser("SUMMARY");
-	summary.setTime(toBeCondensed[0].getTime());
-	summary.setMessageId(toBeCondensed[0].getMessageId());
-	summary.setGuildId(toBeCondensed[0].getGuildId());
+	let oldData = toBeCondensed[0];
+    summary.setUser("SUMMARY");
+    summary.setTime(oldData.getTime());
+    summary.setMessageId(oldData.getMessageId());
+    summary.setGuildId(oldData.getGuildId());
 
 	// Set system message
 	let sendToAi = [
-		{role: "system", content: "Your job is to summarize a conversation so that future bots can understand what was discussed without reading the entire transcript. Please summarize the following conversation in 200 words or less while keeping as much detail as possible. Insert no commentary of your own."}
+		{role: "system", content: "Please summarize this conversation so that future bots can understand what was discussed without reading the entire transcript. Do so concisely while keeping as much detail as possible. Insert no commentary of your own."}
 	];
 
 	// Find the name of the bot whose conversation is being summarized
@@ -114,7 +123,7 @@ let condenseContext = async function (context, authorID) {
 	for (let i = 0; i < toBeCondensed.length; i++) {
 		let tempMessage = toBeCondensed[i];
 		let roleName = "user";
-		if (tempMessage.getUser() == client.user.id) {
+		if (tempMessage.getUser() == clientId) {
 			roleName = `${botName}`;
 		};
 		sendToString.concat(`\r\n${roleName}:`, tempMessage.getMessage())
@@ -127,11 +136,10 @@ let condenseContext = async function (context, authorID) {
 		messages: sendToAi,
 		max_tokens: 1000,
 		temperature: 1.1,
-		user: message.author.id,
+		user: authorId,
 	});
 
-	console.log(`@${summary.getUser()} in <${summary.getGuildId}> had their conversation condensed into this summary: ${completion.data.usage.total_tokens} (${completion.data.usage.prompt_tokens}/${completion.data.usage.completion_tokens}) tokens: "${completion.data.choices[0].message.content}"`);
-
+	console.log(`<@${summary.getUser()}> in server ${summary.getGuildId()} had their conversation condensed into this summary: ${completion.data.usage.total_tokens} (${completion.data.usage.prompt_tokens}/${completion.data.usage.completion_tokens}) tokens: "${completion.data.choices[0].message.content}"`);
 	// Finish our summary message
 	summary.setMessage(completion.data.choices[0].message.content)
 	// Add it back to the thread
@@ -140,7 +148,6 @@ let condenseContext = async function (context, authorID) {
 	output = context.concat(messageCollection);
 	// Return the updated context array
 	return output;
-
 }
 
 let getServerConfig = function(guildId, botName, systemMessage) {
@@ -150,7 +157,7 @@ let getServerConfig = function(guildId, botName, systemMessage) {
 			try {
 				// Look in the config for a valid custom message
 				let temp = fs.readFileSync(`./files/servers/${file}`, 'utf8');
-				tempMessage = temp.slice(temp.indexOf('\n') + 1);
+				let tempMessage = temp.slice(temp.indexOf('\n') + 1);
 				if (tempMessage != 'n/a') {
 					systemMessage = tempMessage;
 				};

@@ -69,10 +69,10 @@ client.on("messageCreate", async message => {
 	if (message.author.bot) {
 		if (message.author.id == client.user.id) { // Record the message if it's from Hubert
 			if (message.reference) {
-				messageContainerContainer.push(new messageContainer(message.author.id, message.timestamp, message.id, message.reference.messageId, message.content));
+				messageContainerContainer.push(new messageContainer(message.author.id, message.createdAt, message.id, message.reference.messageId, message.content, message.guildId));
 			} else {
 				// if it's no longer a reply, then don't try to get its reply ID
-				messageContainerContainer.push(new messageContainer(message.author.id, message.timestamp, message.id, null, message.content)); 
+				messageContainerContainer.push(new messageContainer(message.author.id, message.createdAt, message.id, null, message.content, message.guildId));
 			};
 		};
 		return // Ignore messages from non Hubert bots
@@ -90,7 +90,7 @@ client.on("messageCreate", async message => {
 	};
 	func.debugLog(90,message.content);
 
-	messageContainerContainer.push(new messageContainer(message.author.id, message.timestamp, message.id, replyId, message.content, message.guildId));
+	messageContainerContainer.push(new messageContainer(message.author.id, message.createdAt, message.id, replyId, message.content, message.guildId));
 	// Find message history
 	if (replyToMe) {
 		let pointerMessage = messageContainerContainer[messageContainerContainer.length - 1];
@@ -162,11 +162,6 @@ client.on("messageCreate", async message => {
 			user: message.author.id,
 		});
 
-		// if the last prompt was getting large, condense it
-		if (completion.data.usage.prompt_tokens > 199) {
-			messageContainerContainer = func.condenseContext(messageContainerContainer, message.author.id);
-		};
-
 		console.log(`${message.author.username} <@${message.author.id}> in ${message.guild.name} asked: "${message.content}" and Hubert responded with ${completion.data.usage.total_tokens} (${completion.data.usage.prompt_tokens}/${completion.data.usage.completion_tokens}) tokens: "${completion.data.choices[0].message.content}"`);
 		client.user.setPresence({status: 'online'});
 		try{
@@ -183,6 +178,11 @@ client.on("messageCreate", async message => {
 			
 		} catch (error) {
 			errHandle(`Reply to prompt\n${error}`, 1, client);
+		};
+
+		// if the last prompt was getting large, condense it
+		if (completion.data.usage.prompt_tokens > 199) {
+			messageContainerContainer = await func.condenseContext(messageContainerContainer, message.author.id);
 		};
 	} catch (error) {
 		if (error.response) {
