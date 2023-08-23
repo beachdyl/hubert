@@ -105,7 +105,7 @@ let condenseContext = async function (context, authorId) {
 
 	let summary = new messageContainer(null, null, null, null, null, null);
 	let oldData = toBeCondensed[0];
-    summary.setUser("SUMMARY");
+    summary.setUser("summary");
     summary.setTime(oldData.getTime());
     summary.setMessageId(oldData.getMessageId());
     summary.setGuildId(oldData.getGuildId());
