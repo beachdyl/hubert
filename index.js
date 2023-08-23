@@ -5,7 +5,6 @@ const { Client, GatewayIntentBits, Partials, Collection, EmbedBuilder } = requir
 const { token, devChannelId, openaiKey } = require('./config.json');
 const { errHandle } = require('@beachdyl/error_handler');
 const func = require('./functions.js');
-const {encode, decode} = require('gpt-3-encoder');
 
 // import message struct
 const { messageContainer } = require('./message.js')
@@ -44,14 +43,14 @@ try {
 	for (const file of commandFiles) {
 		const command = require(`./commands/${file}`);
 		client.commands.set(command.data.name, command);
-	}
+	};
 } catch (error) {
 	try {
 		errHandle(`Command registration of command named ${command.data.name}\n${error}`, 1, client);
 	} catch (error) {
 		errHandle(`Command registration of unknown command\n${error}`, 1, client);
-	}
-}
+	};
+};
 
 // Init the struct to remember messages
 var messageContainerContainer = new Array();
@@ -146,14 +145,14 @@ client.on("messageCreate", async message => {
 			if (messageContainerContainer.length < 2) {
 				sendToAi.splice(1, 0, {role: "assistant", content: (await message.channel.messages.fetch(message.reference.messageId)).content}); 
 				sendToAi.splice(1, 0, {role: "user", content: (await message.channel.messages.fetch((await message.channel.messages.fetch(message.reference.messageId)).reference.messageId)).content}); 
-			}
+			};
 		} else {
 			sendToAi.splice(1, 0, {role: "user", content: message.content});
 		};
 
 		for (let i = 0; i < sendToAi.length; i++) {
-			func.debugLog(175, `${i}- ${sendToAi[i].role} "${sendToAi[i].content}"`)
-		}
+			func.debugLog(175, `${i}- ${sendToAi[i].role} "${sendToAi[i].content}"`);
+		};
 
 		const completion = await openai.createChatCompletion({
 			model: "gpt-3.5-turbo",
@@ -183,15 +182,15 @@ client.on("messageCreate", async message => {
 					client.users.cache.get(message.author.id).send(`Sorry! I can only handle so many messages per minute. Try again in a minute.`);
 				} catch (error) {
 					errHandle(`Rate limit message error\n${error}`, 1, client);
-				}
+				};
 			} else {
 				console.error(error)
 				errHandle(`OpenAI request error\n${error}`, 1, client);
-			}
+			};
 		} else {
 			console.error(error)
 			errHandle(`OpenAI request error\n${error}`, 1, client);
-		}
+		};
 	};
 });
 
@@ -213,7 +212,7 @@ client.on('interactionCreate', async interaction => {
 	if (!command) {
 		console.error(`No command matching ${interaction.commandName} was found.`);
 		return;
-	}
+	};
 
 	try {
 		await command.execute(interaction);
@@ -223,8 +222,8 @@ client.on('interactionCreate', async interaction => {
 			await interaction.followUp({ content: 'There was an error while executing this command!', ephemeral: true });
 		} else {
 			await interaction.reply({ content: 'There was an error while executing this command!', ephemeral: true });
-		}
-	}
+		};
+	};
 });
 
 // Process button interactions

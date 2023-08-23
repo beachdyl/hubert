@@ -1,9 +1,8 @@
-
-const { SlashCommandBuilder } = require('@discordjs/builders');
 const fs = require('fs');
+const { SlashCommandBuilder } = require('@discordjs/builders');
 const { openaiKey, clientId } = require('../config.json');
 const { Configuration, OpenAIApi } = require("openai");
-const { errHandle } = require('@beachdyl/error_handler');
+
 const configuration = new Configuration({
     apiKey: openaiKey,
 });
@@ -24,8 +23,8 @@ module.exports = {
     async execute(interaction) {
 
         // Set default parameters
-        let systemMessage = 'n/a'
-        let botName = 'n/a'
+        let systemMessage = 'n/a';
+        let botName = 'n/a';
         
         // Read to see if there are any previous data entries which need to be kept
         let file = interaction.guildId;
@@ -82,5 +81,5 @@ module.exports = {
         });
 
         await interaction.reply(completion.data.choices[0].message.content);
-    },
+    }
 };

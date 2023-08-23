@@ -3,6 +3,7 @@ const fs = require('fs');
 const { messageContainer } = require('./message.js')
 const { openaiKey, debugMode } = require('./config.json');
 const { Configuration, OpenAIApi } = require("openai");
+const {encode, decode} = require('gpt-3-encoder');
 
 const configuration = new Configuration({
     apiKey: openaiKey,
@@ -61,8 +62,8 @@ let condenseContext = async function (context, authorID) {
 	for (let i = context.length - 1; i >= 0; i--) {
 		if (context[i].user = authorID) {
 			pointerMessage = context[i];
-		}
-	}
+		};
+	};
 
 	// Grab the message thread destructively
 	let looper = true;
@@ -90,7 +91,7 @@ let condenseContext = async function (context, authorID) {
 	var toBeCondensed = new Array();
 	for (let i = (messageCollection.length / 2) - 1; i < messageCollection.length; i++) {
 		toBeCondensed.push(messageCollection.splice(i, 0));
-	}
+	};
 
 	// Set up our summary message
 
@@ -152,12 +153,12 @@ let getServerConfig = function(guildId, botName, systemMessage) {
 				tempMessage = temp.slice(temp.indexOf('\n') + 1);
 				if (tempMessage != 'n/a') {
 					systemMessage = tempMessage;
-				}
+				};
 				//Look in the config for a valid custom name
 				tempName = temp.slice(0, temp.indexOf('\n'));
 				if (tempName != 'n/a') {
 					botName = tempName;
-				}
+				};
 			} catch (err) {
 
 			};
