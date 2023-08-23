@@ -112,7 +112,7 @@ let condenseContext = async function (context, authorId) {
 
 	// Set system message
 	let sendToAi = [
-		{role: "system", content: "Please summarize this conversation so that future bots can understand what was discussed without reading the entire transcript. Do so concisely while keeping as much detail as possible. Insert no commentary of your own."}
+		{role: "system", content: "Please summarize this conversation so that future bots can understand what was discussed without reading the entire transcript. Your summary should be 100 words and include as much detail as possible, without being unnecessarily verbose. Insert no commentary of your own."}
 	];
 
 	// Find the name of the bot whose conversation is being summarized
@@ -125,6 +125,9 @@ let condenseContext = async function (context, authorId) {
         let roleName = "user";
         if (tempMessage.getUser() == clientId) {
             roleName = `${botName}`;
+        };
+		if (tempMessage.getUser() == "summary") {
+            roleName = "Previous Summary";
         };
 		sendToString = `${sendToString}
 		${roleName}: ${tempMessage.getMessage()}`;

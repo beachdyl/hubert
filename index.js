@@ -2,7 +2,7 @@
 const fs = require('fs');
 const path = require('node:path');
 const { Client, GatewayIntentBits, Partials, Collection, EmbedBuilder } = require('discord.js');
-const { token, devChannelId, openaiKey, debugMode } = require('./config.json');
+const { token, devChannelId, openaiKey, debugMode, adminUserId } = require('./config.json');
 const { errHandle } = require('@beachdyl/error_handler');
 const func = require('./functions.js');
 
@@ -160,7 +160,7 @@ client.on("messageCreate", async message => {
 		const completion = await openai.createChatCompletion({
 			model: "gpt-3.5-turbo",
 			messages: sendToAi,
-			max_tokens: 500,
+			max_tokens: 400,
 			temperature: 1.2,
 			user: message.author.id,
 		});
@@ -215,7 +215,12 @@ client.on('interactionCreate', async interaction => {
 		interaction.reply({ephemeral: true, content: `Commands are only usable in servers.`});
 		return; // Ignore commands sent in DMs
 	};
-	if (interaction.channel.name !== `hubert`) return; // Ignore commands sent ouside operational channels
+	// allow manual running of the message command
+	if (interaction.commandName == "message" && interaction.member.user.id == adminUserId) {
+		
+
+	}
+	if (interaction.channel.name !== `hubert` && interaction.commandName !== "message") return; // Ignore most commands sent ouside operational channels
 	if (func.isBanned(interaction.member.user.id)) {
 		interaction.reply({ephemeral: true, content: `You do not have permission to interact with me.`});
 		return; // Don't process input from banned users
