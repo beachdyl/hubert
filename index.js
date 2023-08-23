@@ -138,6 +138,9 @@ client.on("messageCreate", async message => {
 				if (tempMessage.getUser() == client.user.id) {
 					roleName = "assistant";
 				};
+				if (tempMessage.getUser() == "summary") {
+					roleName = "system";
+				};
 				sendToAi.splice(1, 0, {role: roleName, content: tempMessage.getMessage()});
 			};
 
